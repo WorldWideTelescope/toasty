@@ -1,3 +1,24 @@
+# toasty 0.7.0 (2021-08-06)
+
+- Add the `toasty pipeline ignore-rejects` command to allow you to tell the
+  Toasty pipeline system to ignore certain images going forward. This will be
+  helpful if your pipeline provides some images that, say, aren't actually
+  images of the sky (#51, @pkgw).
+- Start requiring and using version 0.10 of the [wwt_data_formats] support
+  library. This version includes important improvements to how image coordinates
+  (WCS) are handled. Previously, some kinds of coordinates weren't handled
+  completely correctly. While it's better to do this correctly, the new code may
+  break some existing workflows if they accidentally relied on the broken
+  behavior.
+- Implement end-to-end support for tiling FITS data in the backend (#52, @pkgw)!
+  These datasets can be displayed using the very latest version of the WWT
+  rendering engine. Toasty's support for creating these datasets needs to be
+  exposed in a more user-friendly way, including documentation and examples,
+  but the core algorithms should generate working datasets.
+
+[wwt_data_formats]: https://wwt-data-formats.readthedocs.io/
+
+
 # toasty 0.6.4 (2021-02-09)
 
 - Properly handle CLI glob arguments on Windows. It turns out that we need to
