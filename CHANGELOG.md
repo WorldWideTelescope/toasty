@@ -1,3 +1,9 @@
+# toasty 0.7.1 (2021-08-06)
+
+- No code changes from 0.7.0. The Python package didn't publish to PyPI due
+  to an issue with the automation, which should now be fixed.
+
+
 # toasty 0.7.0 (2021-08-06)
 
 - Add the `toasty pipeline ignore-rejects` command to allow you to tell the
