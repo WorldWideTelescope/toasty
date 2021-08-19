@@ -1,3 +1,9 @@
+# toasty 0.8.0 (2021-08-19)
+
+- Add a `--name` argument to the `tile-wwtl` command (#53, #54, @astrodavid10,
+  @pkgw).
+
+
 # toasty 0.7.1 (2021-08-06)
 
 - No code changes from 0.7.0. The Python package didn't publish to PyPI due
