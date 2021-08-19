@@ -1,4 +1,10 @@
-# rc: micro bump
+# rc: minor bump
+
+- Add a `--name` argument to the `tile-wwtl` command (#53, #54, @astrodavid10,
+  @pkgw).
+
+
+# toasty 0.7.1 (2021-08-06)
 
 - No code changes from 0.7.0. The Python package didn't publish to PyPI due
   to an issue with the automation, which should now be fixed.
