@@ -1,5 +1,11 @@
 # rc: minor bump
 
+- Add a `plate-caree-panorama` projection mode to the `tile-allsky` command
+  (#55, @astrodavid10).
+
+
+# toasty 0.8.0 (2021-08-19)
+
 - Add a `--name` argument to the `tile-wwtl` command (#53, #54, @astrodavid10,
   @pkgw).
 
