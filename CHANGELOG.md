@@ -1,5 +1,29 @@
 # rc: minor bump
 
+- Add `toasty check-avm`, which opens up an image file and reports whether it
+  contains AVM (Astronomy Visualization Metadata) tags. This requires that the
+  `pyavm` module is installed (#59, @pkgw).
+- Add the `--avm` option to the `toasty tile-study` command (#59, @pkgw). When
+  specified, spatial positioning information for the input image will be loaded
+  from AVM tags in the input image and preserved in the resulting WTML file.
+  This option doesn't "just work" automatically (for now) because it requires
+  the `pyavm` module to be present, and we don't want to make that a hard
+  requirement of installing Toasty.
+- Fix `toasty tile-wwtl` to emit correct WTML files once again (#58, @pkgw).
+- Increase the ability of the "multi-WCS" FITS tiling functionality to handle
+  huge images by reprojecting them in (large) chunks. This shouldn't affect
+  performance with reasonable-sized images, but makes it possible to handle
+  large ones. Here "large" means that the image consumes something like 10-25%
+  of the available system memory.
+- Silence various unhelpful Python warnings
+- Enable FITS processing to work when the input image has more than two axes,
+  if the other axes are only one element long (#57, @pkgw).
+- Write out `DATAMIN` and `DATAMAX` headers in output FITS files, which helps
+  WWT set the correct scaling for FITS visualization (#57, @pkgw).
+
+
+# toasty 0.9.0 (2021-08-25)
+
 - Add a `plate-caree-panorama` projection mode to the `tile-allsky` command
   (#55, @astrodavid10).
 
