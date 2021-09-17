@@ -1,3 +1,14 @@
+# toasty 0.11.0 (2021-09-17)
+
+- Fix up `toasty tile-study` to handle FITS files properly (@pkgw, #61). The
+  input must be in a tangential projection, and only some basic data layouts
+  within the FITS container are supported. The `--placeholder-thumbnail` option
+  also must be used.
+- Fix an off-by-one error in the computations used by `toasty tile-multi-tan`
+  (@pkgw, #61)
+- Improve some internal APIs for processing studies.
+
+
 # toasty 0.10.0 (2021-09-10)
 
 - Add `toasty check-avm`, which opens up an image file and reports whether it
