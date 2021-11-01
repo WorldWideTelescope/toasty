@@ -1,3 +1,32 @@
+# toasty 0.12.0 (2021-11-01)
+
+- Both toasty's AstroPix/Djangoplicity pipeline and the `wwt_data_formats`
+  module had WCS handling bugs that canceled each other out. The data-formats
+  bug was fixed in release 0.10.2 of that package, which caused the Toasty bug
+  to become apparent. Fix that (reported by @astrodavid10, #65; fixed by @pkgw,
+  #66).
+- Fixed and features needed to process the SELENE Kaguya TC dataset (@pkgw,
+  #63). Unfortunately these changes are lacking corresponding documentation:
+  - Add a U8 image mode.
+  - Add APIs to filter out out subtrees when sampling TOAST pyramids.
+  - Add proper support for the planetary TOAST coordinate system, which is
+    rotated 180 degrees in longitude from the celestial one.
+  - Add support for JPEG2000 images.
+  - Add support for chunked TOAST tiling.
+  - Add a chunked plate-carree TOAST sampler.
+  - Fix out-of-date data when updating PIL-based images.
+  - Improve multiprocessing implementations to avoid race conditions on exit and
+    operate more robustly in multi-node (HPC) contexts.
+  - Add the ability for `toasty transform` (and underlying APIs) to emit the
+    transformed data into a separate pyramid; i.e. create a tree of only JPG
+    files from a tree of NPY files.
+  - Add `toasty transform u8-to-rgb`
+  - Don't create every directory when removing lockfiles
+- Fix FITS file update on Windows (#67, @imbasimba)
+- Improve FITS heuristics to ignore binary tables and other HDUs without a
+  defined shape (#62, @imbasimba).
+
+
 # toasty 0.11.0 (2021-09-17)
 
 - Fix up `toasty tile-study` to handle FITS files properly (@pkgw, #61). The
