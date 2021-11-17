@@ -1,5 +1,14 @@
 # rc: minor bump
 
+- Add an automagical all-in-one API, `toasty.tile_fits`, that takes FITS input
+  and tiles it (#68, @imbasimba). The goal here is to do the right thing with
+  any kind of non-ridiculous input you can throw at it.
+- Turn `reproject` and `shapely` into hard dependencies to enable the above
+  API to work reliably (#68, @imbasimba).
+
+
+# toasty 0.12.0 (2021-11-01)
+
 - Both toasty's AstroPix/Djangoplicity pipeline and the `wwt_data_formats`
   module had WCS handling bugs that canceled each other out. The data-formats
   bug was fixed in release 0.10.2 of that package, which caused the Toasty bug
