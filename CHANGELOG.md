@@ -1,3 +1,12 @@
+# toasty 0.13.0 (2021-11-17)
+
+- Add an automagical all-in-one API, `toasty.tile_fits`, that takes FITS input
+  and tiles it (#68, @imbasimba). The goal here is to do the right thing with
+  any kind of non-ridiculous input you can throw at it.
+- Turn `reproject` and `shapely` into hard dependencies to enable the above
+  API to work reliably (#68, @imbasimba).
+
+
 # toasty 0.12.0 (2021-11-01)
 
 - Both toasty's AstroPix/Djangoplicity pipeline and the `wwt_data_formats`
