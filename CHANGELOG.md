@@ -1,5 +1,37 @@
 # rc: minor bump
 
+- Expand the all-in-one FITS API, [`toasty.tile_fits`], to invoke the
+  [`hipsgen`] program when given an image that is larger than about 20° on the
+  sky ([#69], [@imbasimba], [@pkgw]). This is the breakpoint at which WWT's tangential
+  projection starts yielding visually poor results.
+- Add the [`toasty view`] CLI tool the builds on the above, and the new
+  scripting support in the resarch app, to act as a command-line FITS viewer
+  ([#69], [@pkgw])! Just run `toasty view myfile.fits` to view interactively in your
+  browser, with sky context and all of the features provided by the research
+  app.
+- When loading FITS collections, the `hdu_index` can now be a list of integers,
+  instead of just one integer ([#69], [@imbasimba]). This lets you specify different
+  image HDUs to use for different input files.
+- Various new APIs and internal improvements to enable the above; there's a new
+  [`toasty.fits_tiler`] module and new interfaces in [`toasty.collection`].
+- Add a hack to strongarm AstroPy into being willing to load WCS from improper
+  files that include TPV distortions without using the `-TPV` projection type
+  ([#69], [@pkgw]). This allows us to view some of the [DASCH] FITS files.
+
+[`toasty.tile_fits`]: https://toasty.readthedocs.io/en/latest/api/toasty.tile_fits.html
+[`hipsgen`]: https://aladin.u-strasbg.fr/hips/HipsIn10Steps.gml
+[#69]: https://github.com/WorldWideTelescope/toasty/pull/69
+[@imbasimba]: https://github.com/imbasimba
+[@pkgw]: https://github.com/pkgw
+[`toasty view`]: https://toasty.readthedocs.io/en/latest/cli/view.html
+[`toasty.tile_fits`]: https://toasty.readthedocs.io/en/latest/api/toasty.tile_fits.html
+[`toasty.fits_tiler`]: https://toasty.readthedocs.io/en/latest/api.html#module-toasty.fits_tiler
+[`toasty.collection`]: https://toasty.readthedocs.io/en/latest/api.html#module-toasty.collection
+[DASCH]: http://dasch.rc.fas.harvard.edu/project.php
+
+
+# toasty 0.13.0 (2021-11-17)
+
 - Add an automagical all-in-one API, `toasty.tile_fits`, that takes FITS input
   and tiles it (#68, @imbasimba). The goal here is to do the right thing with
   any kind of non-ridiculous input you can throw at it.
