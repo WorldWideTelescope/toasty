@@ -12,14 +12,14 @@ large study for tiling.
 """
 from __future__ import absolute_import, division, print_function
 
-__all__ = '''
+__all__ = """
 get_format_vertical_parity_sign
 Image
 ImageDescription
 ImageLoader
 ImageMode
 SUPPORTED_FORMATS
-'''.split()
+""".split()
 
 from enum import Enum
 from PIL import Image as pil_image
@@ -30,23 +30,26 @@ import os
 
 try:
     from astropy.io import fits
+
     ASTROPY_INSTALLED = True
 except ImportError:
     ASTROPY_INSTALLED = False
 
-PIL_RGB_FORMATS = {'jpg': 'JPEG'}
-PIL_RGBA_FORMATS = {'png': 'PNG'}
+PIL_RGB_FORMATS = {"jpg": "JPEG"}
+PIL_RGBA_FORMATS = {"png": "PNG"}
 PIL_FORMATS = PIL_RGB_FORMATS.copy()
 PIL_FORMATS.update(PIL_RGBA_FORMATS)
-SUPPORTED_FORMATS = list(PIL_RGB_FORMATS) + list(PIL_RGBA_FORMATS) + ['npy']
+SUPPORTED_FORMATS = list(PIL_RGB_FORMATS) + list(PIL_RGBA_FORMATS) + ["npy"]
 
 if ASTROPY_INSTALLED:
-    SUPPORTED_FORMATS += ['fits']
+    SUPPORTED_FORMATS += ["fits"]
 
 
 def _validate_format(name, fmt):
     if fmt is not None and fmt not in SUPPORTED_FORMATS:
-        raise ValueError('{0} should be one of {1}'.format(name, '/'.join(sorted(SUPPORTED_FORMATS))))
+        raise ValueError(
+            "{0} should be one of {1}".format(name, "/".join(sorted(SUPPORTED_FORMATS)))
+        )
 
 
 def get_format_vertical_parity_sign(format):
@@ -77,28 +80,35 @@ def get_format_vertical_parity_sign(format):
     While proper WCS coordinates can convey *either* parity in a FITS file,
     WWT's renderer assumes bottoms-up.
     """
-    if format == 'fits':
+    if format == "fits":
         return +1
     return -1
 
+
 def _array_to_mode(array):
     if array.ndim == 2:
-        if array.dtype.kind == 'f' and array.dtype.itemsize == 4:
+        if array.dtype.kind == "f" and array.dtype.itemsize == 4:
             return ImageMode.F32
-        elif array.dtype.kind == 'f' and array.dtype.itemsize == 8:
+        elif array.dtype.kind == "f" and array.dtype.itemsize == 8:
             return ImageMode.F64
-        elif array.dtype.kind == 'u' and array.dtype.itemsize == 1:
+        elif array.dtype.kind == "u" and array.dtype.itemsize == 1:
             return ImageMode.U8
+        elif array.dtype.kind == "i" and array.dtype.itemsize == 4:
+            return ImageMode.I32
     elif array.ndim == 3:
         if array.shape[2] == 3:
-            if array.dtype.kind == 'f' and array.itemsize == 2:
+            if array.dtype.kind == "f" and array.itemsize == 2:
                 return ImageMode.F16x3
-            elif array.dtype.kind == 'u' and array.dtype.itemsize == 1:
+            elif array.dtype.kind == "u" and array.dtype.itemsize == 1:
                 return ImageMode.RGB
         elif array.shape[2] == 4:
-            if array.dtype.kind == 'u' and array.dtype.itemsize == 1:
+            if array.dtype.kind == "u" and array.dtype.itemsize == 1:
                 return ImageMode.RGBA
-    raise ValueError('Could not determine mode for array with dtype {0} and shape {1}'.format(array.dtype, array.shape))
+    raise ValueError(
+        "Could not determine mode for array with dtype {0} and shape {1}".format(
+            array.dtype, array.shape
+        )
+    )
 
 
 class ImageMode(Enum):
@@ -110,19 +120,20 @@ class ImageMode(Enum):
     obscure PIL modes that we do not support.
 
     """
-    RGB = 'RGB'
+
+    RGB = "RGB"
     "24-bit color with three uint8 channels for red, green, and blue."
 
-    RGBA = 'RGBA'
+    RGBA = "RGBA"
     "32-bit color with four uint8 channels for red, green, blue, and alpha (transparency)."
 
-    F32 = 'F'
+    F32 = "F"
     "32-bit floating-point scalar data."
 
-    F64 = 'D'
+    F64 = "D"
     "64-bit floating-point scalar data."
 
-    F16x3 = 'F16x3'
+    F16x3 = "F16x3"
     """
     48-bit color with three 16-bit floating-point channels for red, green, and
     blue.
@@ -131,29 +142,40 @@ class ImageMode(Enum):
     stored in the OpenEXR file format.
     """
 
-    U8 = 'U8'
+    U8 = "U8"
+
+    I32 = "I32"
+    "32-bit integer data."
 
     @classmethod
     def from_array_info(cls, shape, dtype):
+        # Make sure we have an actual dtype instance to work with:
+        dtype = np.dtype(dtype)
+
         if len(shape) == 2:
-            if dtype.kind == 'f' and dtype.itemsize == 4:
+            if dtype.kind == "f" and dtype.itemsize == 4:
                 return cls.F32
-            elif dtype.kind == 'f' and dtype.itemsize == 8:
+            elif dtype.kind == "f" and dtype.itemsize == 8:
                 return cls.F64
-            elif dtype.kind == 'u' and dtype.itemsize == 1:
+            elif dtype.kind == "u" and dtype.itemsize == 1:
                 return cls.U8
+            elif dtype.kind == "i" and dtype.itemsize == 4:
+                return cls.I32
         elif len(shape) == 3:
             if shape[2] == 3:
-                if dtype.kind == 'f' and dtype.itemsize == 2:
+                if dtype.kind == "f" and dtype.itemsize == 2:
                     return cls.F16x3
-                elif dtype.kind == 'u' and dtype.itemsize == 1:
+                elif dtype.kind == "u" and dtype.itemsize == 1:
                     return cls.RGB
             elif shape[2] == 4:
-                if dtype.kind == 'u' and dtype.itemsize == 1:
+                if dtype.kind == "u" and dtype.itemsize == 1:
                     return cls.RGBA
 
-        raise ValueError('Could not determine mode for array with dtype {0} and shape {1}'.format(dtype, shape))
-
+        raise ValueError(
+            "Could not determine mode for array with dtype {0} and shape {1}".format(
+                dtype, shape
+            )
+        )
 
     def make_maskable_buffer(self, buf_height, buf_width):
         """
@@ -190,8 +212,10 @@ class ImageMode(Enum):
             arr = np.empty((buf_height, buf_width, 3), dtype=np.float16)
         elif self == ImageMode.U8:
             arr = np.empty((buf_height, buf_width), dtype=np.uint8)
+        elif self == ImageMode.I32:
+            arr = np.empty((buf_height, buf_width), dtype=np.int32)
         else:
-            raise Exception('unhandled mode in make_maskable_buffer()')
+            raise Exception("unhandled mode in make_maskable_buffer()")
 
         return Image.from_array(arr)
 
@@ -211,10 +235,10 @@ class ImageMode(Enum):
 def _wcs_to_parity_sign(wcs):
     h = wcs.to_header()
 
-    cd1_1 = h['CDELT1'] * h.get('PC1_1', 1.0)
-    cd1_2 = h['CDELT1'] * h.get('PC1_2', 0.0)
-    cd2_1 = h['CDELT2'] * h.get('PC2_1', 0.0)
-    cd2_2 = h['CDELT2'] * h.get('PC2_2', 1.0)
+    cd1_1 = h["CDELT1"] * h.get("PC1_1", 1.0)
+    cd1_2 = h["CDELT1"] * h.get("PC1_2", 0.0)
+    cd2_1 = h["CDELT2"] * h.get("PC2_1", 0.0)
+    cd2_2 = h["CDELT2"] * h.get("PC2_2", 1.0)
 
     det = cd1_1 * cd2_2 - cd1_2 * cd2_1
 
@@ -227,19 +251,21 @@ def _flip_wcs_parity(wcs, image_height):
     from astropy.wcs import WCS
 
     h = wcs.to_header()
-    h['CD1_1'] = h['CDELT1'] * h.setdefault('PC1_1', 1.0)
-    h['CD1_2'] = h['CDELT1'] * h.setdefault('PC1_2', 0.0)
-    h['CD2_1'] = h['CDELT2'] * h.setdefault('PC2_1', 0.0)
-    h['CD2_2'] = h['CDELT2'] * h.setdefault('PC2_2', 1.0)
+    h["CD1_1"] = h["CDELT1"] * h.setdefault("PC1_1", 1.0)
+    h["CD1_2"] = h["CDELT1"] * h.setdefault("PC1_2", 0.0)
+    h["CD2_1"] = h["CDELT2"] * h.setdefault("PC2_1", 0.0)
+    h["CD2_2"] = h["CDELT2"] * h.setdefault("PC2_2", 1.0)
 
-    for hn in 'CDELT1 CDELT2 PC1_1 PC1_2 PC2_1 PC2_2'.split():
+    for hn in "CDELT1 CDELT2 PC1_1 PC1_2 PC2_1 PC2_2".split():
         del h[hn]
 
     # Here's what we need to flip:
 
-    h['CD1_2'] *= -1
-    h['CD2_2'] *= -1
-    h['CRPIX2'] = image_height + 1 - h['CRPIX2']  # this is FITS, so pixel indices are 1-based
+    h["CD1_2"] *= -1
+    h["CD2_2"] *= -1
+    h["CRPIX2"] = (
+        image_height + 1 - h["CRPIX2"]
+    )  # this is FITS, so pixel indices are 1-based
     return WCS(h)
 
 
@@ -261,7 +287,6 @@ class ImageDescription(object):
     wcs = None
     "The WCS information associated with the image, if available."
 
-
     def __init__(self, mode=None, shape=None, wcs=None):
         self.mode = mode
         self.shape = shape
@@ -282,7 +307,6 @@ class ImageDescription(object):
     def height(self):
         return self.shape[0]
 
-
     def get_parity_sign(self):
         """
         Get this ImageDescription's parity, based on its WCS.
@@ -296,10 +320,11 @@ class ImageDescription(object):
         See :meth:`Image.get_parity_sign` for detailed discussion.
         """
         if self.wcs is None:
-            raise ValueError('cannot determine parity of an ImageDescription without WCS')
+            raise ValueError(
+                "cannot determine parity of an ImageDescription without WCS"
+            )
 
         return _wcs_to_parity_sign(self.wcs)
-
 
     def flip_parity(self):
         """
@@ -317,11 +342,12 @@ class ImageDescription(object):
 
         """
         if self.wcs is None:
-            raise ValueError('cannot flip the parity of an ImageDescription without WCS')
+            raise ValueError(
+                "cannot flip the parity of an ImageDescription without WCS"
+            )
 
         self.wcs = _flip_wcs_parity(self.wcs, self.height)
         return self
-
 
     def ensure_negative_parity(self):
         """
@@ -349,8 +375,9 @@ class ImageLoader(object):
     This is implemented as its own class since there can be some options
     involved, and we want to provide a centralized place for handling them all.
     """
+
     black_to_transparent = False
-    colorspace_processing = 'srgb'
+    colorspace_processing = "srgb"
     crop = None
     psd_single_layer = None
 
@@ -376,27 +403,27 @@ class ImageLoader(object):
 
         """
         parser.add_argument(
-            '--black-to-transparent',
-            action = 'store_true',
-            help = 'Convert full black colors to be transparent',
+            "--black-to-transparent",
+            action="store_true",
+            help="Convert full black colors to be transparent",
         )
         parser.add_argument(
-            '--colorspace-processing',
-            metavar = 'MODE',
-            default = 'srgb',
-            help = 'What kind of RGB colorspace processing to perform (default: %(default)s; choices: %(choices)s)',
-            choices = ['srgb', 'none'],
+            "--colorspace-processing",
+            metavar="MODE",
+            default="srgb",
+            help="What kind of RGB colorspace processing to perform (default: %(default)s; choices: %(choices)s)",
+            choices=["srgb", "none"],
         )
         parser.add_argument(
-            '--crop',
-            metavar = 'TOP,RIGHT,BOTTOM,LEFT',
-            help = 'Crop the input image by discarding pixels from each edge (default: 0,0,0,0)',
+            "--crop",
+            metavar="TOP,RIGHT,BOTTOM,LEFT",
+            help="Crop the input image by discarding pixels from each edge (default: 0,0,0,0)",
         )
         parser.add_argument(
-            '--psd-single-layer',
-            type = int,
-            metavar = 'NUMBER',
-            help = 'If loading a Photoshop image, the (0-based) layer number to load -- saves memory',
+            "--psd-single-layer",
+            type=int,
+            metavar="NUMBER",
+            help="If loading a Photoshop image, the (0-based) layer number to load -- saves memory",
         )
         return cls
 
@@ -421,11 +448,13 @@ class ImageLoader(object):
 
         if settings.crop is not None:
             try:
-                crop = list(map(int, settings.crop.split(',')))
+                crop = list(map(int, settings.crop.split(",")))
                 assert all(c >= 0 for c in crop)
                 assert len(crop) in (1, 2, 4)
             except Exception:
-                raise Exception('cannot parse `--crop` setting `{settings.crop!r}`: should be a comma-separated list of 1, 2, or 4 non-negative integers')
+                raise Exception(
+                    "cannot parse `--crop` setting `{settings.crop!r}`: should be a comma-separated list of 1, 2, or 4 non-negative integers"
+                )
 
             if len(crop) == 1:
                 c = crop[0]
@@ -480,13 +509,16 @@ class ImageLoader(object):
         try:
             ImageMode(pil_img.mode)
         except ValueError:
-            print('warning: trying to convert image file to RGB from unexpected bitmode "%s"' % pil_img.mode)
+            print(
+                'warning: trying to convert image file to RGB from unexpected bitmode "%s"'
+                % pil_img.mode
+            )
 
             if self.black_to_transparent:
                 # Avoid double-converting in the next filter.
-                pil_img = pil_img.convert('RGBA')
+                pil_img = pil_img.convert("RGBA")
             else:
-                pil_img = pil_img.convert('RGB')
+                pil_img = pil_img.convert("RGB")
 
         # Convert pure black to transparent -- make sure to do this before any
         # colorspace processing.
@@ -498,16 +530,16 @@ class ImageLoader(object):
         # one will involve holding two buffers at once.
 
         if self.black_to_transparent:
-            if pil_img.mode != 'RGBA':
-                pil_img = pil_img.convert('RGBA')
+            if pil_img.mode != "RGBA":
+                pil_img = pil_img.convert("RGBA")
             a = np.asarray(pil_img)
             a = a.copy()  # read-only buffer => writeable
 
             for i in range(a.shape[0]):
-                nonblack = (a[i,...,0] > 0)
-                np.logical_or(nonblack, a[i,...,1] > 0, out=nonblack)
-                np.logical_or(nonblack, a[i,...,2] > 0, out=nonblack)
-                a[i,...,3] *= nonblack
+                nonblack = a[i, ..., 0] > 0
+                np.logical_or(nonblack, a[i, ..., 1] > 0, out=nonblack)
+                np.logical_or(nonblack, a[i, ..., 2] > 0, out=nonblack)
+                a[i, ..., 3] *= nonblack
 
             # This is my attempt to preserve the image metadata and other
             # attributes, swapping out the pixel data only. There is probably
@@ -520,26 +552,32 @@ class ImageLoader(object):
         # EPO images have funky colorspaces and we need to convert to sRGB to get
         # the tiled versions to appear correctly.
 
-        if self.colorspace_processing != 'none' and 'icc_profile' in pil_img.info:
-            assert self.colorspace_processing == 'srgb' # more modes, one day?
+        if self.colorspace_processing != "none" and "icc_profile" in pil_img.info:
+            assert self.colorspace_processing == "srgb"  # more modes, one day?
 
             try:
                 from PIL import ImageCms
+
                 # ImageCms doesn't raise import error if the implementation is unavailable
                 # "for doc purposes". To see if it's available we need to actually try to
                 # do something:
-                out_prof = ImageCms.createProfile('sRGB')
+                out_prof = ImageCms.createProfile("sRGB")
             except ImportError:
-                print('''warning: colorspace processing requested, but no `ImageCms` module found in PIL.
+                print(
+                    """warning: colorspace processing requested, but no `ImageCms` module found in PIL.
     Your installation of PIL probably does not have colorspace support.
     Colors will not be transformed to sRGB and therefore may not appear as intended.
     Compare toasty's output to your source image and decide if this is acceptable to you.
-    Consider a different setting of the `--colorspace-processing` argument to avoid this warning.''',
-                    file=sys.stderr)
+    Consider a different setting of the `--colorspace-processing` argument to avoid this warning.""",
+                    file=sys.stderr,
+                )
             else:
                 from io import BytesIO
-                in_prof = ImageCms.getOpenProfile(BytesIO(pil_img.info['icc_profile']))
-                xform = ImageCms.buildTransform(in_prof, out_prof, pil_img.mode, pil_img.mode)
+
+                in_prof = ImageCms.getOpenProfile(BytesIO(pil_img.info["icc_profile"]))
+                xform = ImageCms.buildTransform(
+                    in_prof, out_prof, pil_img.mode, pil_img.mode
+                )
                 ImageCms.applyTransform(pil_img, xform, inPlace=True)
 
         return Image.from_pil(pil_img)
@@ -590,11 +628,11 @@ class ImageLoader(object):
         # Special handling for Numpy arrays. TODO: it would be better to sniff
         # filetypes instead of just looking at extensions. But, lazy.
 
-        if path.endswith('.npy'):
+        if path.endswith(".npy"):
             arr = np.load(path)
-            return Image.from_array(arr, default_format='npy')
+            return Image.from_array(arr, default_format="npy")
 
-        if path.lower().endswith(('.fits', '.fts', '.fits.gz', '.fts.gz')):
+        if path.lower().endswith((".fits", ".fts", ".fits.gz", ".fts.gz")):
 
             # TODO: implement a better way to recognize FITS files
             # TODO: decide how to handle multiple HDUs
@@ -604,11 +642,23 @@ class ImageLoader(object):
                 arr = hdul[0].data
                 if ASTROPY_INSTALLED:
                     from astropy.wcs import WCS
+
                     wcs = WCS(hdul[0].header)
                 else:
                     wcs = None
-
-                img = Image.from_array(arr, wcs=wcs, default_format='fits')
+                max_value = self._get_header_value_or_none(
+                    header=hdul[0].header, keyword="DATAMAX"
+                )
+                min_value = self._get_header_value_or_none(
+                    header=hdul[0].header, keyword="DATAMIN"
+                )
+                img = Image.from_array(
+                    arr,
+                    wcs=wcs,
+                    default_format="fits",
+                    min_value=min_value,
+                    max_value=max_value,
+                )
             return img
 
         # Special handling for Photoshop files, used for some very large mosaics
@@ -616,7 +666,7 @@ class ImageLoader(object):
 
         # TODO: check for AVM in following formats and set WCS using this if needed.
 
-        if path.endswith('.psd') or path.endswith('.psb'):
+        if path.endswith(".psd") or path.endswith(".psb"):
             try:
                 from psd_tools import PSDImage
             except ImportError:
@@ -637,18 +687,27 @@ class ImageLoader(object):
         # Special handling for OpenEXR files, used for large images with high
         # dynamic range.
 
-        if path.endswith('.exr'):
+        if path.endswith(".exr"):
             from .openexr import load_openexr
+
             img = load_openexr(path)
             if img.dtype != np.float16:
-                raise Exception('only half-precision OpenEXR images are currently supported')
+                raise Exception(
+                    "only half-precision OpenEXR images are currently supported"
+                )
             return Image.from_array(img)
 
         # (One day, maybe we'll do more kinds of sniffing.) No special handling
         # came into play; just open the file and auto-detect.
 
-        with open(path, 'rb') as f:
+        with open(path, "rb") as f:
             return self.load_stream(f)
+
+    def _get_header_value_or_none(self, header, keyword):
+        value = None
+        if keyword in header:
+            value = header[keyword]
+        return value
 
 
 class Image(object):
@@ -662,8 +721,10 @@ class Image(object):
     _pil = None
     _array = None
     _mode = None
-    _default_format = 'png'
+    _default_format = "png"
     _wcs = None
+    _data_min = None
+    _data_max = None
 
     @classmethod
     def from_pil(cls, pil_img, wcs=None, default_format=None):
@@ -685,7 +746,7 @@ class Image(object):
         A new :class:`Image` wrapping the PIL image.
         """
 
-        _validate_format('default_format', default_format)
+        _validate_format("default_format", default_format)
 
         # Make sure that the image data are actually loaded from disk. Pillow
         # lazy-loads such that sometimes `np.asarray(img)` ends up failing
@@ -701,12 +762,14 @@ class Image(object):
         try:
             inst._mode = ImageMode(pil_img.mode)
         except ValueError:
-            raise Exception('image mode {} is not supported'.format(pil_img.mode))
+            raise Exception("image mode {} is not supported".format(pil_img.mode))
 
         return inst
 
     @classmethod
-    def from_array(cls, array, wcs=None, default_format=None):
+    def from_array(
+        cls, array, wcs=None, default_format=None, min_value=None, max_value=None
+    ):
         """Create a new Image from an array-like data variable.
 
         Parameters
@@ -721,6 +784,12 @@ class Image(object):
             The default format to use when writing the image if none is
             specified explicitly. If not specified, this is automatically
             chosen at write time based on the array type.
+        min_value : number or ``None`` (the default)
+            An optional number only used for FITS images.
+            The value represents to the lowest data value in this image and its children.
+        max_value : number or ``None`` (the default)
+            An optional number only used for FITS images.
+            The value represents to the highest data value in this image and its children.
 
         Returns
         -------
@@ -732,13 +801,13 @@ class Image(object):
 
         """
 
-        _validate_format('default_format', default_format)
+        _validate_format("default_format", default_format)
 
         # Windows systems ('nt') cannot close a file while there are any variables pointing
         # to data within the opened file. Therefore we have to copy the entire array from
         # the opened file. In other, more permissive operating systems, pointing to the
         # file data is ok.
-        if os.name == 'nt':
+        if os.name == "nt":
             array = np.copy(array)
 
         array = np.atleast_2d(array)
@@ -748,6 +817,11 @@ class Image(object):
         inst._default_format = default_format or cls._default_format
         inst._array = array
         inst._wcs = wcs
+        if "fits" in inst._default_format:
+            if min_value is not None:
+                inst._data_min = min_value
+            if max_value is not None:
+                inst._data_max = max_value
         return inst
 
     def asarray(self):
@@ -786,7 +860,9 @@ class Image(object):
         if self._pil is not None:
             return self._pil
         if self.mode.try_as_pil() is None:
-            raise Exception(f'Toasty image with mode {self.mode} cannot be converted to PIL')
+            raise Exception(
+                f"Toasty image with mode {self.mode} cannot be converted to PIL"
+            )
         return pil_image.fromarray(self._array)
 
     @property
@@ -821,9 +897,15 @@ class Image(object):
     def default_format(self):
         if self._default_format is None:
             if self.mode in (ImageMode.RGB, ImageMode.RGBA):
-                return 'png'
-            elif self.mode in (ImageMode.F32, ImageMode.F64, ImageMode.F16x3, ImageMode.U8):
-                return 'npy'
+                return "png"
+            elif self.mode in (
+                ImageMode.F32,
+                ImageMode.F64,
+                ImageMode.F16x3,
+                ImageMode.U8,
+                ImageMode.I32,
+            ):
+                return "npy"
         else:
             return self._default_format
 
@@ -832,8 +914,15 @@ class Image(object):
         if value in SUPPORTED_FORMATS:
             self._default_format = value
         else:
-            raise ValueError('Unrecognized format: {0}'.format(value))
+            raise ValueError("Unrecognized format: {0}".format(value))
 
+    @property
+    def data_min(self):
+        return self._data_min
+
+    @property
+    def data_max(self):
+        return self._data_max
 
     def has_wcs(self):
         """
@@ -844,7 +933,6 @@ class Image(object):
         True if this image has WCS, False otherwise.
         """
         return self._wcs is not None
-
 
     def get_parity_sign(self):
         """
@@ -884,10 +972,9 @@ class Image(object):
 
         """
         if self._wcs is None:
-            raise ValueError('cannot determine parity of an image without WCS')
+            raise ValueError("cannot determine parity of an image without WCS")
 
         return _wcs_to_parity_sign(self._wcs)
-
 
     def flip_parity(self):
         """
@@ -907,12 +994,11 @@ class Image(object):
 
         """
         if self._wcs is None:
-            raise ValueError('cannot flip the parity of an image without WCS')
+            raise ValueError("cannot flip the parity of an image without WCS")
 
         self._wcs = _flip_wcs_parity(self._wcs, self.height)
         self._array = self.asarray()[::-1]
         return self
-
 
     def ensure_negative_parity(self):
         """
@@ -935,7 +1021,6 @@ class Image(object):
         if self.get_parity_sign() == 1:
             self.flip_parity()
         return self
-
 
     def fill_into_maskable_buffer(self, buffer, iy_idx, ix_idx, by_idx, bx_idx):
         """
@@ -972,16 +1057,16 @@ class Image(object):
 
         if self.mode == ImageMode.RGB:
             b.fill(0)
-            b[by_idx,bx_idx,:3] = i[iy_idx,ix_idx]
-            b[by_idx,bx_idx,3] = 255
-        elif self.mode in (ImageMode.RGBA, ImageMode.U8):
+            b[by_idx, bx_idx, :3] = i[iy_idx, ix_idx]
+            b[by_idx, bx_idx, 3] = 255
+        elif self.mode in (ImageMode.RGBA, ImageMode.U8, ImageMode.I32):
             b.fill(0)
-            b[by_idx,bx_idx] = i[iy_idx,ix_idx]
+            b[by_idx, bx_idx] = i[iy_idx, ix_idx]
         elif self.mode in (ImageMode.F32, ImageMode.F64, ImageMode.F16x3):
             b.fill(np.nan)
-            b[by_idx,bx_idx] = i[iy_idx,ix_idx]
+            b[by_idx, bx_idx] = i[iy_idx, ix_idx]
         else:
-            raise Exception('unhandled mode in fill_into_maskable_buffer')
+            raise Exception("unhandled mode in fill_into_maskable_buffer")
 
     def update_into_maskable_buffer(self, buffer, iy_idx, ix_idx, by_idx, bx_idx):
         """
@@ -1014,24 +1099,24 @@ class Image(object):
         # since it will be out-of-date.
         buffer._pil = None
 
-        sub_b = b[by_idx,bx_idx]
-        sub_i = i[iy_idx,ix_idx]
+        sub_b = b[by_idx, bx_idx]
+        sub_i = i[iy_idx, ix_idx]
 
         if self.mode == ImageMode.RGB:
-            sub_b[...,:3] = sub_i
-            sub_b[...,3] = 255
+            sub_b[..., :3] = sub_i
+            sub_b[..., 3] = 255
         elif self.mode == ImageMode.RGBA:
-            valid = (sub_i[...,3] != 0)
-            valid = np.broadcast_to(valid[...,None], sub_i.shape)
+            valid = sub_i[..., 3] != 0
+            valid = np.broadcast_to(valid[..., None], sub_i.shape)
             np.putmask(sub_b, valid, sub_i)
         elif self.mode in (ImageMode.F32, ImageMode.F64):
             valid = ~np.isnan(sub_i)
             np.putmask(sub_b, valid, sub_i)
         elif self.mode == ImageMode.F16x3:
             valid = ~np.any(np.isnan(sub_i), axis=2)
-            valid = np.broadcast_to(valid[...,None], sub_i.shape)
+            valid = np.broadcast_to(valid[..., None], sub_i.shape)
             np.putmask(sub_b, valid, sub_i)
-        elif self.mode == ImageMode.U8:
+        elif self.mode in (ImageMode.U8, ImageMode.I32):
             # zero is our maskval, so here's a convenient way to get pretty good
             # update semantics. It will behave unusually if two buffers overlap
             # and disagree on their non-zero pixel values: instead of the second
@@ -1039,9 +1124,13 @@ class Image(object):
             # buffer "wins", biased towards the brighter values.
             np.maximum(sub_b, sub_i, out=sub_b)
         else:
-            raise Exception(f'unhandled mode `{self.mode}` in update_into_maskable_buffer')
+            raise Exception(
+                f"unhandled mode `{self.mode}` in update_into_maskable_buffer"
+            )
 
-    def save(self, path_or_stream, format=None, mode=None):
+    def save(
+        self, path_or_stream, format=None, mode=None, min_value=None, max_value=None
+    ):
         """
         Save this image to a filesystem path or stream
 
@@ -1050,9 +1139,21 @@ class Image(object):
         path_or_stream : path-like object or file-like object
             The destination into which the data should be written. If file-like,
             the stream should accept bytes.
+        format : :class:`str` or ``None`` (the default)
+            The format name; one of ``SUPPORTED_FORMATS``
+        mode : :class:`toasty.image.ImageMode` or ``None`` (the default)
+            The image data mode to use if ``format`` is a ``PIL_FORMATS``
+        min_value : number or ``None`` (the default)
+            An optional number only used for FITS images.
+            The value represents to the lowest data value in this image and its children.
+            If not set, the minimum value will be extracted from this image.
+        max_value : number or ``None`` (the default)
+            An optional number only used for FITS images.
+            The value represents to the highest data value in this image and its children.
+            If not set, the maximum value will be extracted from this image.
         """
 
-        _validate_format('format', format)
+        _validate_format("format", format)
 
         format = format or self._default_format
 
@@ -1063,24 +1164,30 @@ class Image(object):
             if mode is not None:
                 pil_image = pil_image.convert(mode.try_as_pil())
             pil_image.save(path_or_stream, format=PIL_FORMATS[format])
-        elif format == 'npy':
+        elif format == "npy":
             np.save(path_or_stream, self.asarray())
-        elif format == 'fits':
+        elif format == "fits":
             header = fits.Header() if self._wcs is None else self._wcs.to_header()
 
             arr = self.asarray()
 
             # Avoid annoying RuntimeWarnings on all-NaN data
             with warnings.catch_warnings():
-                warnings.simplefilter('ignore')
-
-                m = np.nanmin(arr)
-                if np.isfinite(m):  # Astropy will raise an error if we don't NaN-guard
-                    header['DATAMIN'] = m
-
-                m = np.nanmax(arr)
-                if np.isfinite(m):
-                    header['DATAMAX'] = m
+                warnings.simplefilter("ignore")
+                if min_value is not None:
+                    header["DATAMIN"] = min_value
+                else:
+                    m = np.nanmin(arr)
+                    if np.isfinite(
+                        m
+                    ):  # Astropy will raise an error if we don't NaN-guard
+                        header["DATAMIN"] = m
+                if max_value is not None:
+                    header["DATAMAX"] = max_value
+                else:
+                    m = np.nanmax(arr)
+                    if np.isfinite(m):
+                        header["DATAMAX"] = m
 
             fits.writeto(
                 path_or_stream,
@@ -1099,8 +1206,8 @@ class Image(object):
         be saved in JPEG format.
 
         """
-        if self.mode in (ImageMode.F32, ImageMode.F64, ImageMode.F16x3):
-            raise Exception('cannot thumbnail-ify non-RGB Image')
+        if self.mode in (ImageMode.I32, ImageMode.F32, ImageMode.F64, ImageMode.F16x3):
+            raise Exception("cannot thumbnail-ify non-RGB Image")
 
         THUMB_SHAPE = (96, 45)
         THUMB_ASPECT = THUMB_SHAPE[0] / THUMB_SHAPE[1]
@@ -1131,7 +1238,7 @@ class Image(object):
 
         # Depending on the source image, the mode might be RGBA, which can't
         # be JPEG-ified.
-        thumb = thumb.convert('RGB')
+        thumb = thumb.convert("RGB")
 
         return thumb
 
@@ -1148,9 +1255,9 @@ class Image(object):
         with NaNs.
 
         """
-        if self._mode in (ImageMode.RGB, ImageMode.RGBA, ImageMode.U8):
+        if self._mode in (ImageMode.RGB, ImageMode.RGBA, ImageMode.U8, ImageMode.I32):
             self.asarray().fill(0)
         elif self._mode in (ImageMode.F32, ImageMode.F64, ImageMode.F16x3):
             self.asarray().fill(np.nan)
         else:
-            raise Exception('unhandled mode in clear()')
+            raise Exception("unhandled mode in clear()")

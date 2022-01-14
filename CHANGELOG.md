@@ -1,5 +1,22 @@
 # rc: minor bump
 
+- Start adding metadata about data min/max values and suggested pixel range cuts
+  for tiled FITS data sets, for either TOAST or HiPS-based data processing (#71,
+  @imbasimba). This will allow the renderer to provide nice default settings
+  when opening up FITS datasets.
+- Add support for 32-bit integer FITS (#72, @imbasimba)
+- Allow Astropy's WCS code to fix non-standard FITS headers, which increases our
+  compatibility with more FITS datasets in the wild (#73, @imbasimba)
+- Add the `--fits-wcs` argument to `tile-study`, to apply coordinates to an RGB
+  image based on the data contained in a separate FITS file (#74, @pkgw). This
+  is especially useful if you have an image that Astrometry.Net can solve, since
+  that service produces small downloadable FITS files with its solution
+  information.
+- Reorganize the API docs a bit (#74, @pkgw)
+
+
+# toasty 0.14.0 (2021-12-13)
+
 - Expand the all-in-one FITS API, [`toasty.tile_fits`], to invoke the
   [`hipsgen`] program when given an image that is larger than about 20° on the
   sky ([#69], [@imbasimba], [@pkgw]). This is the breakpoint at which WWT's tangential
