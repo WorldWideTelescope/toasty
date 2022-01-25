@@ -1,3 +1,16 @@
+# toasty 0.16.0 (2022-01-25)
+
+- Add support for some more kinds of longitude arrangements seen in planetary
+  maps: "zero left" where the longitude = 0 line is on the left edge of the
+  image, rather than in the center, and "zero right" which is comparable except
+  that longitude increases to the left, as usually seen in sky maps, rather than
+  to the right (#75, @pkgw). These are available in the CLI with the new
+  `plate-carree-planet-zeroleft` and `plate-carree-planet-zeroright` projection
+  types.
+- When creating planetary TOAST maps, actually use the planetary TOAST
+  coordinate system by default (#75, @pkgw).
+
+
 # toasty 0.15.0 (2022-01-14)
 
 - Start adding metadata about data min/max values and suggested pixel range cuts
