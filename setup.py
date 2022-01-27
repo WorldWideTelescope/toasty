@@ -39,7 +39,7 @@ project homepage].
 
 setup_args = dict(
     name="toasty",  # cranko project-name
-    version="0.16.0",  # cranko project-version
+    version="0.16.1",  # cranko project-version
     description="Generate TOAST image tile pyramids from existing image data",
     long_description=get_long_desc(),
     long_description_content_type="text/markdown",
