@@ -1,4 +1,13 @@
-# rc: minor bump
+# rc: micro bump
+
+- Toasty is now more forgiving with FITS and WCS shapes when tiling FITS data
+  (#76, @pkgw). In particular, it will behave more correctly when the data and
+  WCS shapes disagree, and if the data have interesting structure in the
+  non-celestial axes, Toasty will take the first celestial plane it finds rather
+  than rejecting the input file.
+
+
+# toasty 0.16.0 (2022-01-25)
 
 - Add support for some more kinds of longitude arrangements seen in planetary
   maps: "zero left" where the longitude = 0 line is on the left edge of the
