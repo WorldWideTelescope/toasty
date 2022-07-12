@@ -105,6 +105,8 @@ def check_avm_getparser(parser):
 
 
 def check_avm_impl(settings):
+    from .image import ImageLoader
+
     try:
         from pyavm import AVM, exceptions
 
@@ -129,15 +131,61 @@ def check_avm_impl(settings):
             f"{settings.image}: AVM data are present but malformed: {e} ({e.__class__.__name__})"
         )
         sys.exit(1)
-    except IOError as e:
-        die(f"error probing AVM tags of `{settings.image}`: {e}")
+    except Exception as e:
+        die(
+            f"error probing AVM tags of `{settings.image}`: {e} ({e.__class__.__name__})"
+        )
+
+    status_exitcode = 0
 
     if settings.print_avm:
-        print(f"{settings.image}: AVM tags are present")
+        print_remark = ""
+    else:
+        print_remark = " (use `--print` to display them)"
+
+    print(f"{settings.image}: AVM tags are present{print_remark}")
+
+    if repr(avm.Spatial) == "":
+        print(f"{settings.image}: however, no spatial information")
+        status_exitcode = 1
+    elif avm.Spatial.ReferenceDimension is None:
+        print(
+            f"{settings.image}: including spatial information, but no reference dimension"
+        )
+    else:
+        img = ImageLoader().load_path(settings.image)
+        this_shape = (int(img.width), int(img.height))
+        ref_shape = (
+            int(avm.Spatial.ReferenceDimension[0]),
+            int(avm.Spatial.ReferenceDimension[1]),
+        )
+
+        if this_shape == ref_shape:
+            print(
+                f"{settings.image}: including spatial information for this image's dimensions"
+            )
+        else:
+            print(
+                f"{settings.image}: including spatial information at a different scale"
+            )
+            print(
+                f"{settings.image}: AVM is for {ref_shape[0]} x {ref_shape[1]}, image is {this_shape[0]} x {this_shape[1]}"
+            )
+            this_aspect = this_shape[0] / this_shape[1]
+            ref_aspect = ref_shape[0] / ref_shape[1]
+
+            # The threshold here approximates the one used by pyavm
+            if abs(this_aspect - ref_aspect) / (this_aspect + ref_aspect) >= 0.005:
+                print(
+                    f"{settings.image}: WARNING: these aspect ratios are not compatible"
+                )
+                status_exitcode = 1
+
+    if settings.print_avm:
         print()
         print(avm)
-    else:
-        print(f"{settings.image}: AVM tags are present (use `--print` to display them)")
+
+    sys.exit(status_exitcode if settings.exitcode else 0)
 
 
 # "make_thumbnail" subcommand
@@ -319,10 +367,22 @@ def tile_allsky_impl(settings):
 
 def tile_healpix_getparser(parser):
     parser.add_argument(
+        "--galactic",
+        action="store_true",
+        help="Force use of Galactic coordinate system, regardless of headers",
+    )
+    parser.add_argument(
         "--outdir",
         metavar="PATH",
         default=".",
         help="The root directory of the output tile pyramid",
+    )
+    parser.add_argument(
+        "--parallelism",
+        "-j",
+        metavar="COUNT",
+        type=int,
+        help="The parallelization level (default: use all CPUs if OS supports; specify `1` to force serial processing)",
     )
     parser.add_argument(
         "fitspath",
@@ -342,10 +402,17 @@ def tile_healpix_impl(settings):
     from .pyramid import PyramidIO
     from .samplers import healpix_fits_file_sampler
 
-    pio = PyramidIO(settings.outdir, default_format="npy")
-    sampler = healpix_fits_file_sampler(settings.fitspath)
+    pio = PyramidIO(settings.outdir, default_format="fits")
+    sampler = healpix_fits_file_sampler(
+        settings.fitspath, force_galactic=settings.galactic
+    )
     builder = Builder(pio)
-    builder.toast_base(sampler, settings.depth)
+    builder.toast_base(
+        sampler,
+        settings.depth,
+        parallel=settings.parallelism,
+        cli_progress=True,
+    )
     builder.write_index_rel_wtml()
 
     print(
@@ -435,6 +502,11 @@ def tile_study_getparser(parser):
         help="Expect the input image to have AVM positioning tags",
     )
     parser.add_argument(
+        "--avm-from",
+        metavar="PATH",
+        help="Set positioning based on AVM tags in a different image",
+    )
+    parser.add_argument(
         "--fits-wcs",
         metavar="PATH",
         help="Get WCS information from this FITS file",
@@ -473,7 +545,7 @@ def tile_study_impl(settings):
 
     # Now deal with the WCS
 
-    if settings.avm:
+    if settings.avm or settings.avm_from:
         # We don't *always* check for AVM because pyavm prints out a lot of junk
         # and may not be installed.
         try:
@@ -484,10 +556,21 @@ def tile_study_impl(settings):
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                avm = AVM.from_image(settings.imgpath)
+
+                if settings.avm_from:
+                    if settings.avm:
+                        print(
+                            "warning: `--avm` option superseded by `--avm-from`",
+                            file=sys.stderr,
+                        )
+                    avm_input = settings.avm_from
+                else:
+                    avm_input = settings.imgpath
+
+                avm = AVM.from_image(avm_input)
         except Exception:
             print(
-                f"error: failed to read AVM tags of input `{settings.imgpath}`",
+                f"error: failed to read AVM tags of input `{avm_input}`",
                 file=sys.stderr,
             )
             raise

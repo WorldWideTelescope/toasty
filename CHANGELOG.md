@@ -1,4 +1,17 @@
-# rc: micro bump
+# rc: minor bump
+
+- Add an `--avm-from` option to `toasty tile-study`, which would have been
+  useful with the JWST imagery released yesterday (#82, @pkgw).
+- Support tiled FITS in `toasty tile-healpix` (#79, #80, @pkgw), and add a
+  `--force-galactic` option.
+- Avoid HEALPix HDUs without data (#79, @pkgw)
+- Add some diagnostics for spatial AVM information in `toasty check-avm` (#78,
+  @pkgw)
+- Update tests for new `wwt_data_formats` constellation support and other
+  changing dependencies.
+
+
+# toasty 0.16.1 (2022-01-27)
 
 - Toasty is now more forgiving with FITS and WCS shapes when tiling FITS data
   (#76, @pkgw). In particular, it will behave more correctly when the data and
