@@ -1,3 +1,10 @@
+# toasty 0.17.1 (2022-07-14)
+
+- Properly match and propagate diagonal PC headers in multi-tan processing (#83,
+  @pkgw). This fixes processing of the JWST Level 3 FITS data for the deep
+  field, which are on a rotated TAN projection.
+
+
 # toasty 0.17.0 (2022-07-12)
 
 - Add an `--avm-from` option to `toasty tile-study`, which would have been
