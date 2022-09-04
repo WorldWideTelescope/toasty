@@ -215,6 +215,13 @@ class PyramidIO(object):
         reading/writing tiles. If not specified, and base_dir exists and
         contains files, these are used to guess default_format. Otherwise
         defaults to 'png'.
+
+    Notes
+    -----
+    If ``default_format`` is unspecified, the default guessing process iterates
+    over the pyramid until it finds a file. In a very large pyramid, this can be
+    quite I/O-intensive, so in large tasks you should specify the default
+    explicitly.
     """
 
     def __init__(self, base_dir, scheme="L/Y/YX", default_format=None):
@@ -261,8 +268,10 @@ class PyramidIO(object):
         Notes
         -----
         In its default mode this function does I/O itself — it creates the
-        parent directories containing the tile path. It is not an error for
-        the parent directories to already exist.
+        parent directories containing the tile path. It is not an error for the
+        parent directories to already exist. When reading data from a large,
+        existing pyramid, I/O performance might be improved significantly by
+        making sure to set ``makedirs = False``.
         """
 
         level = str(pos.n)
@@ -343,7 +352,7 @@ class PyramidIO(object):
         masked_mode : :class:`toasty.image.ImageMode`
             The image data mode to use if ``default`` is set to ``'masked'``.
         """
-        p = self.tile_path(pos, format=format)
+        p = self.tile_path(pos, format=format, makedirs=False)
 
         loader = ImageLoader()
 
