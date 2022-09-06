@@ -1,0 +1,54 @@
+{
+  "conceptrecid": "7055476",
+  "metadata": {
+    "access_right": "open",
+    "creators": [
+      {
+        "affiliation": "Google",
+        "name": "Beaumont, Christopher"
+      },
+      {
+        "affiliation": "Space Telescope Science Institute; SUPA, School of Physics and Astronomy, University of St. Andrews",
+        "name": "Brasseur, C.",
+        "orcid": "0000-0002-9314-960X"
+      },
+      {
+        "affiliation": "Winter Way",
+        "name": "Norman, Henrik",
+        "orcid": "0000-0003-4189-3450"
+      },
+      {
+        "affiliation": "Aperio Software",
+        "name": "Robitaille, Thomas P.",
+        "orcid": "0000-0002-8642-1329"
+      },
+      {
+        "affiliation": "Center for Astrophysics | Harvard & Smithsonian",
+        "name": "Williams, Peter K. G.",
+        "orcid": "0000-0003-3734-3587"
+      },
+      {
+        "affiliation": "US Space and Rocket Center",
+        "name": "Weigel, A. David",
+        "orcid": "0000-0002-8026-2291"
+      }
+    ],
+    "description": "toasty is a Python library that helps you create “tile pyramids” from astronomical image data, as used in the TOAST format. These multi-resolution maps can be viewed in software such as the AAS WorldWide Telescope. Learn more at <a href=\"https://toasty.readthedocs.io/\">the toasty website</a>.",
+    "keywords": [
+      "AAS WorldWide Telescope",
+      "Astronomy",
+      "Python",
+      "Visualization"
+    ],
+    "language": "eng",
+    "license": "MIT",
+    "publication_date": "2022-09-06",
+    "title": "toasty 0.18.0",
+    "upload_type": "software",
+    "version": "0.18.0"
+  },
+  "conceptdoi": "10.5281/zenodo.7055476",
+  "record_id": "7055477",
+  "doi": "10.5281/zenodo.7055477",
+  "bucket_link": "https://zenodo.org/api/files/6d0a9090-a34c-49d8-b0ce-d0c14f5e8328"
+}

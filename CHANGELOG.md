@@ -1,3 +1,51 @@
+# toasty 0.18.0 (2022-09-06)
+
+This release of Toasty contains a whole boatload of improvements! There are
+no less than three major ones:
+
+- Support tiling FITS data to the all-sky TOAST projection (#86, @imbasimba)!
+  Now you can create all-sky FITS datasets that can be displayed in the latest
+  release of the WWT engine. This includes a new routine to automatically
+  determine the appropriate TOAST resolution level.
+- A new `-t` option to `toasty view` allows you to view FITS data on remote
+  systems using SSH tunneling (#87, @pkgw)! The tunnel mode uses SSH to tile
+  the data on the remote machine, run a server, and tunnel the server to the
+  local machine for display by your web browser.
+- Finally, Toasty releases are now automatically deposited with Zenodo and
+  assigned DOIs in the process. This makes it possible to cite the Toasty
+  software, indicating exactly which version you were using, in scholarly
+  context. The new command `toasty show version-doi` will display the DOI of the
+  specific version of Toasty that you're running.
+
+Some smaller improvements support these changes:
+
+- Some of Toasty's internal systems were reorganized to allow for more efficient
+  and flexible processing of pyramids (#89, #90, @pkgw). It is now possible to
+  perform the "cascade" operation on sub-pyramids of data, allowing for parallel
+  processing in HPC scenarios. A new `toasty.pyramid.Pyramid` data structure
+  consolidates related code, reducing several nearly duplicate algorithms, and
+  provides a more coherent formalism for treating operations on pyramids.
+- Also, the code for filtering TOAST pyramids based on latitude/longitude bounds
+  was fixed to work when the in-bounds area spanned more than 180 degrees, and
+  also was made faster using Cython.
+- Other efficiency improvements include:
+  - Not writing all-flagged images (#88, @pkgw)
+  - Avoiding creation of pyramid directories when reading imagery
+  - Avoiding launching parallel operations when there is no work to do
+  - Consolidating preparatory work for parallelized cascading
+- When Toasty operations are being run in non-interactive scenarios, progress
+  bars are now printed much more rarely and without screen overwrites, making
+  for smaller and more readable log files (#88, @pkgw). This functionality is
+  provided by a small new `toasty.progress` module.
+- 16-bit integer images are now supported (#84, @imbasimba).
+- DASCH FITS files with TPV distortions are now loaded with the correct LONPOLE
+  setting.
+
+The DOI of this release is [10.5281/zenodo.7055477][xdoi].
+
+[xdoi]: https://doi.org/10.5281/zenodo.7055477
+
+
 # toasty 0.17.1 (2022-07-14)
 
 - Properly match and propagate diagonal PC headers in multi-tan processing (#83,
