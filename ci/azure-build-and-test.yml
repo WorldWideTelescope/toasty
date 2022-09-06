@@ -155,5 +155,8 @@ jobs:
       pip install astropy-sphinx-theme
       cd docs
       make html
-      make linkcheck
+
+      # 2022 Sep - turning off link check because dotnetfoundation.org expired
+      # HTTPS cert is causing problems
+      #make linkcheck
     displayName: Build docs
