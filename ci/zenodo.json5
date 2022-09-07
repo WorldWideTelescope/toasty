@@ -2,7 +2,7 @@
 // and https://developers.zenodo.org/#representation
 
 {
-  conceptrecid: 'new-for:0.18.0',
+  conceptrecid: '7055476',
 
   metadata: {
     upload_type: 'software',
