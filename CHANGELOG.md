@@ -1,4 +1,14 @@
-# rc: minor bump
+# rc: micro bump
+
+- Fix tiling on macOS+Py3.7 due to an unexpectedly unimplemented API (#94,
+  @pkgw).
+
+The DOI of this release is [xx.xxxx/dev-build.toasty.version][xdoi].
+
+[xdoi]: https://doi.org/xx.xxxx/dev-build.toasty.version
+
+
+# toasty 0.18.0 (2022-09-06)
 
 This release of Toasty contains a whole boatload of improvements! There are
 no less than three major ones:
@@ -41,9 +51,9 @@ Some smaller improvements support these changes:
 - DASCH FITS files with TPV distortions are now loaded with the correct LONPOLE
   setting.
 
-The DOI of this release is [xx.xxxx/dev-build.toasty.version][xdoi].
+The DOI of this release is [10.5281/zenodo.7055477][xdoi].
 
-[xdoi]: https://doi.org/xx.xxxx/dev-build.toasty.version
+[xdoi]: https://doi.org/10.5281/zenodo.7055477
 
 
 # toasty 0.17.1 (2022-07-14)

@@ -994,8 +994,15 @@ class Pyramid(object):
         total = riter.result()[1]
 
         if self.depth > 9:
+            # On macOS/Python 3.7, qsize() raises NotImplementedError "because
+            # of broken sem_getvalue()".
+            try:
+                ready_queue_size = ready_queue.qsize()
+            except NotImplementedError:
+                ready_queue_size = "(cannot be determined)"
+
             print(
-                f"... {time.time() - t0:.1f}s elapsed; queue size {ready_queue.qsize()}; ready map size {len(readiness)}"
+                f"... {time.time() - t0:.1f}s elapsed; queue size {ready_queue_size}; ready map size {len(readiness)}"
             )
 
         if total == 0:
