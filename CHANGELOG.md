@@ -1,3 +1,13 @@
+# toasty 0.18.1 (2022-09-07)
+
+- Fix tiling on macOS+Py3.7 due to an unexpectedly unimplemented API (#94,
+  @pkgw).
+
+The DOI of this release is [10.5281/zenodo.7058238][xdoi].
+
+[xdoi]: https://doi.org/10.5281/zenodo.7058238
+
+
 # toasty 0.18.0 (2022-09-06)
 
 This release of Toasty contains a whole boatload of improvements! There are
