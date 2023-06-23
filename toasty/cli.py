@@ -885,6 +885,12 @@ def view_getparser(parser):
         help="Tile the data but do not open for viewing",
     )
     parser.add_argument(
+        "--tiling-method",
+        default="auto",
+        choices=["auto", "tan", "toast", "hips"],
+        help="The target projection when tiling: `auto`, `tan`, `toast`, or `hips`",
+    )
+    parser.add_argument(
         "paths",
         metavar="PATHS",
         action=EnsureGlobsExpandedAction,
@@ -895,15 +901,28 @@ def view_getparser(parser):
 
 def view_locally(settings):
     from wwt_data_formats.server import preview_wtml
+    from . import TilingMethod
     from .collection import CollectionLoader
     from .fits_tiler import FitsTiler
+
+    if settings.tiling_method == "auto":
+        tiling_method = TilingMethod.AUTO_DETECT
+    elif settings.tiling_method == "tan":
+        tiling_method = TilingMethod.TAN
+    elif settings.tiling_method == "toast":
+        tiling_method = TilingMethod.TOAST
+    elif settings.tiling_method == "hips":
+        tiling_method = TilingMethod.HIPS
+    else:
+        # This shouldn't happen since argparse should validate the input
+        die(f"unhandled tiling method `{settings.tiling_method}`")
 
     coll = CollectionLoader.create_from_args(settings).load_paths(settings.paths)
 
     # Ignore any astropy WCS/FITS warnings, which can spew a lot of annoying output.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        tiler = FitsTiler(coll)
+        tiler = FitsTiler(coll, tiling_method=tiling_method)
         tiler.tile(cli_progress=True, parallel=settings.parallelism)
 
     rel_wtml_path = os.path.join(tiler.out_dir, "index_rel.wtml")
@@ -941,7 +960,8 @@ def view_tunneled(settings):
     # We give SSH `-T` to prevent warnings about not allocating pseudo-TTYs.
 
     ssh_argv = ["ssh", "-T", settings.tunnel]
-    toasty_argv = ["exec", "toasty", "view", "--tile-only"]
+    toasty_argv = ["exec", "toasty", "view", "--tile-only", f"--tiling-method={settings.tiling_method}"]
+
     if settings.parallelism:
         toasty_argv += ["--parallelism", str(settings.parallelism)]
     toasty_argv += [shlex.quote(p) for p in settings.paths]
