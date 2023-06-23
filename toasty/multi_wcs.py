@@ -71,7 +71,7 @@ class MultiWcsProcessor(object):
         # ImageDescription helper to ensure we get that.
 
         wcs, shape = find_optimal_celestial_wcs(
-            ((desc.in_shape, desc.in_wcs) for desc in self._descs),
+            [(desc.in_shape, desc.in_wcs) for desc in self._descs],
             auto_rotate=True,
             projection="TAN",
         )
