@@ -8,16 +8,15 @@
 <!--pypi-begin-->
 [toasty] is a Python library that helps you create “tile pyramids” from
 astronomical image data as used in the [TOAST] format. These multi-resolution
-maps can be viewed in software such as the [AAS] [WorldWide Telescope].
+maps can be viewed in software such as [WorldWide Telescope].
 
 [toasty]: https://toasty.readthedocs.io/
 [TOAST]: https://doi.org/10.3847/1538-4365/aaf79e
-[AAS]: https://aas.org/
 [WorldWide Telescope]: http://www.worldwidetelescope.org/
 
 [toasty] was originally written by [Chris Beaumont], benefited from
 contributions by Clara Brasseur (Space Telescope Science Institute), and is
-currently maintained as part of the AAS [WorldWide Telescope] project.
+currently maintained as part of the [WorldWide Telescope] project.
 
 [Chris Beaumont]: https://chrisbeaumont.org/
 <!--pypi-end-->
@@ -100,13 +99,13 @@ and [PyPI](https://pypi.org/project/toasty/#history).
 
 ## Legalities
 
-[toasty] is copyright Chris Beaumont, Clara Brasseur, and the AAS WorldWide
+[toasty] is copyright Chris Beaumont, Clara Brasseur, and the WorldWide
 Telescope Team. It is licensed under the [MIT License](./LICENSE).
 
 
 ## Acknowledgments
 
-[toasty] is part of the AAS WorldWide Telescope system, a [.NET Foundation]
+[toasty] is part of the WorldWide Telescope system, a [.NET Foundation]
 project managed by the non-profit [American Astronomical Society] (AAS). Work
 on WWT has been supported by the AAS, the US [National Science Foundation]
 (grants [1550701], [1642446], and [2004840]), the [Gordon and Betty Moore Foundation], and
