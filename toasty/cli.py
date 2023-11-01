@@ -641,9 +641,32 @@ def tile_study_impl(settings):
         elif img.shape[:2] != (wcs_height, wcs_width):
             warn(
                 f"image `{settings.imgpath}` has shape {img.shape}, but "
-                f"WCS reference file `{settings.fits_wcs}` has shape ({wcs_height}, {wcs_width}); "
-                f"astrometry may not transfer correctly"
+                f"WCS reference file `{settings.fits_wcs}` has shape ({wcs_height}, {wcs_width})"
             )
+
+            # Cribbing some code from pyavm ...
+            scale_x = img.shape[1] / wcs_width
+            scale_y = img.shape[0] / wcs_height
+
+            if abs(scale_x - scale_y) / (scale_x + scale_y) >= 0.005:
+                warn(
+                    "the aspect ratios are not compatible; I'll proceed, but astrometry is unlikely transfer correctly"
+                )
+                scale = 1.0
+            else:
+                warn("the aspect ratios are compatible, so I'll try rescaling")
+                scale = scale_x
+
+            wcs.wcs.crpix *= scale
+
+            if hasattr(wcs.wcs, "cd"):
+                wcs.wcs.cd /= scale
+            else:
+                wcs.wcs.cdelt /= scale
+
+            if hasattr(wcs, "naxis1"):
+                wcs.naxis1 = img.shape[1]
+                wcs.naxis2 = img.shape[0]
 
         img._wcs = wcs  # <= hack alert, but I think this is OK
         img.ensure_negative_parity()
@@ -960,7 +983,13 @@ def view_tunneled(settings):
     # We give SSH `-T` to prevent warnings about not allocating pseudo-TTYs.
 
     ssh_argv = ["ssh", "-T", settings.tunnel]
-    toasty_argv = ["exec", "toasty", "view", "--tile-only", f"--tiling-method={settings.tiling_method}"]
+    toasty_argv = [
+        "exec",
+        "toasty",
+        "view",
+        "--tile-only",
+        f"--tiling-method={settings.tiling_method}",
+    ]
 
     if settings.parallelism:
         toasty_argv += ["--parallelism", str(settings.parallelism)]
