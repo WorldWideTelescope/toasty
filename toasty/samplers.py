@@ -285,7 +285,7 @@ def plate_carree_ecliptic_sampler(data):
     lat0 = HALFPI - 0.5 / dy  # latitudes of the centers of the pixels with iy = 0
 
     def vec2pix(lon, lat):
-        ecl = ICRS(lon * u.rad, lat * u.rad).transform_to(Ecliptic)
+        ecl = ICRS(lon * u.rad, lat * u.rad).transform_to(Ecliptic())
         lon, lat = ecl.lon.rad, ecl.lat.rad
         lon = lon % TWOPI - np.pi  # ensure in range [-pi, pi]
 
