@@ -26,7 +26,7 @@ try:
 except ImportError:
     HAS_OPENEXR = False
 
-from . import test_path
+from . import mk_test_path
 from .. import cli, toast
 from ..image import ImageLoader
 from ..jpeg2000 import ChunkedJPEG2000Reader, HAS_JPEG2000
@@ -178,7 +178,7 @@ class PyramidTester(object):
                 ref_x = x
                 warn = ""
 
-            ref_path = test_path(ref, str(n), str(y), "%i_%i.png" % (y, ref_x))
+            ref_path = mk_test_path(ref, str(n), str(y), "%i_%i.png" % (y, ref_x))
             expected = ImageLoader().load_path(ref_path).asarray()
 
             if planetary:
@@ -202,7 +202,7 @@ class TestSampleLayer(PyramidTester):
         from ..samplers import plate_carree_sampler
 
         img = ImageLoader().load_path(
-            test_path("Equirectangular_projection_SW-tweaked.jpg")
+            mk_test_path("Equirectangular_projection_SW-tweaked.jpg")
         )
         sampler = plate_carree_sampler(img.asarray())
         sample_layer(self.pio, sampler, 1, format="png")
@@ -211,7 +211,7 @@ class TestSampleLayer(PyramidTester):
     def test_plate_carree_ecliptic(self):
         from ..samplers import plate_carree_ecliptic_sampler
 
-        img = ImageLoader().load_path(test_path("tess_platecarree_ecliptic_512.jpg"))
+        img = ImageLoader().load_path(mk_test_path("tess_platecarree_ecliptic_512.jpg"))
         sampler = plate_carree_ecliptic_sampler(img.asarray())
         sample_layer(self.pio, sampler, 1, format="png")
         self.verify_level1(ref="tess")
@@ -221,7 +221,7 @@ class TestSampleLayer(PyramidTester):
         from ..samplers import plate_carree_sampler
 
         img = ImageLoader().load_path(
-            test_path("Equirectangular_projection_SW-tweaked.exr")
+            mk_test_path("Equirectangular_projection_SW-tweaked.exr")
         )
         sampler = plate_carree_sampler(img.asarray())
         sample_layer(self.pio, sampler, 1, format="npy")
@@ -234,7 +234,7 @@ class TestSampleLayer(PyramidTester):
         from ..toast import ToastCoordinateSystem
 
         img = ChunkedJPEG2000Reader(
-            test_path("Equirectangular_projection_SW-tweaked.jp2")
+            mk_test_path("Equirectangular_projection_SW-tweaked.jp2")
         )
         # this currently (2021 Oct) only supports planetary coordinates:
         chunker = ChunkedPlateCarreeSampler(img, planetary=True)
@@ -257,7 +257,7 @@ class TestSampleLayer(PyramidTester):
     def test_healpix_equ(self):
         from ..samplers import healpix_fits_file_sampler
 
-        sampler = healpix_fits_file_sampler(test_path("earth_healpix_equ.fits"))
+        sampler = healpix_fits_file_sampler(mk_test_path("earth_healpix_equ.fits"))
         sample_layer(self.pio, sampler, 1, format="npy")
         self.verify_level1(format="npy", expected_2d=True)
 
@@ -265,7 +265,7 @@ class TestSampleLayer(PyramidTester):
     def test_healpix_gal(self):
         from ..samplers import healpix_fits_file_sampler
 
-        sampler = healpix_fits_file_sampler(test_path("earth_healpix_gal.fits"))
+        sampler = healpix_fits_file_sampler(mk_test_path("earth_healpix_gal.fits"))
         sample_layer(self.pio, sampler, 1, format="fits")
         self.verify_level1(format="fits", expected_2d=True)
 
@@ -335,7 +335,7 @@ class TestCliBasic(PyramidTester):
 
     def test_planet(self):
         self.inner_test(
-            test_path("Equirectangular_projection_SW-tweaked.jpg"),
+            mk_test_path("Equirectangular_projection_SW-tweaked.jpg"),
             "plate-carree-planet",
         )
 
@@ -346,7 +346,7 @@ class TestCliBasic(PyramidTester):
         need to swap the left and right halves.
         """
         img = ImageLoader().load_path(
-            test_path("Equirectangular_projection_SW-tweaked.jpg")
+            mk_test_path("Equirectangular_projection_SW-tweaked.jpg")
         )
         hw = img.width // 2
 
@@ -368,7 +368,7 @@ class TestCliBasic(PyramidTester):
         the right edge of the image is longitude 0.
         """
         img = ImageLoader().load_path(
-            test_path("Equirectangular_projection_SW-tweaked.jpg")
+            mk_test_path("Equirectangular_projection_SW-tweaked.jpg")
         )
         hw = img.width // 2
 
