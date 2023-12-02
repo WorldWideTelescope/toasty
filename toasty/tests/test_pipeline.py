@@ -11,7 +11,7 @@ import pytest
 import shutil
 import sys
 
-from . import assert_xml_elements_equal, test_path
+from . import assert_xml_elements_equal, mk_test_path
 from .. import cli
 from .. import pipeline
 from ..pipeline import astropix
@@ -52,7 +52,7 @@ class LocalTestAstroPixImageSource(astropix.AstroPixImageSource):
         yield astropix.AstroPixCandidateInput(item)
 
     def fetch_candidate(self, unique_id, cand_data_stream, cachedir):
-        shutil.copy(test_path('NGC253ALMA.jpg'), os.path.join(cachedir, 'image.jpg'))
+        shutil.copy(mk_test_path('NGC253ALMA.jpg'), os.path.join(cachedir, 'image.jpg'))
 
 
 class TestPipeline(object):
@@ -63,7 +63,7 @@ class TestPipeline(object):
         pipeline.IMAGE_SOURCE_CLASS_LOADERS['_local_test_astropix'] = lambda: LocalTestAstroPixImageSource
 
         os.makedirs(self.work_path('repo'))
-        shutil.copy(test_path('toasty-pipeline-config.yaml'), self.work_path('repo'))
+        shutil.copy(mk_test_path('toasty-pipeline-config.yaml'), self.work_path('repo'))
 
     def teardown_method(self, method):
         from shutil import rmtree

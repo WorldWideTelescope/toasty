@@ -12,7 +12,7 @@ import sys
 
 from wwt_data_formats.filecabinet import FileCabinetWriter
 
-from . import assert_xml_elements_equal, test_path
+from . import assert_xml_elements_equal, mk_test_path
 from .. import cli
 from .. import study
 
@@ -35,12 +35,12 @@ class TestStudy(object):
 
         fw = FileCabinetWriter()
 
-        with open(test_path('layercontainer.wwtxml'), 'rb') as f:
+        with open(mk_test_path('layercontainer.wwtxml'), 'rb') as f:
             b = f.read()
 
         fw.add_file_with_data('55cb0cce-c44a-4a44-a509-ea66fce643a5.wwtxml', b)
 
-        with open(test_path('NGC253ALMA.jpg'), 'rb') as f:
+        with open(mk_test_path('NGC253ALMA.jpg'), 'rb') as f:
             b = f.read()
 
         fw.add_file_with_data('55cb0cce-c44a-4a44-a509-ea66fce643a5\\7ecb6411-e4ee-4dfa-90ef-77d6f486c7d2.jpg', b)

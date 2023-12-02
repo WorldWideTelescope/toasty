@@ -6,7 +6,7 @@ __all__ = '''
 assert_xml_elements_equal
 check_xml_elements_equal
 HAS_AVM
-test_path
+mk_test_path
 '''.split()
 
 import os.path
@@ -14,7 +14,7 @@ import os.path
 
 TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
 
-def test_path(*pieces):
+def mk_test_path(*pieces):
     return os.path.join(TESTS_DIR, *pieces)
 
 

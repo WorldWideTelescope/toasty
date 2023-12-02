@@ -5,7 +5,7 @@
 from __future__ import absolute_import, division, print_function
 
 import pytest
-from . import test_path
+from . import mk_test_path
 from .. import collection
 
 try:
@@ -19,13 +19,13 @@ class TestCollection(object):
 
     @pytest.mark.skipif('not HAS_ASTRO')
     def test_is_multi_tan(self):
-        coll = collection.SimpleFitsCollection([test_path('wcs512.fits.gz')])
+        coll = collection.SimpleFitsCollection([mk_test_path('wcs512.fits.gz')])
         assert coll._is_multi_tan()
 
-        coll = collection.SimpleFitsCollection([test_path('herschel_spire.fits.gz'),
-                                                test_path('herschel_spire.fits.gz')])
+        coll = collection.SimpleFitsCollection([mk_test_path('herschel_spire.fits.gz'),
+                                                mk_test_path('herschel_spire.fits.gz')])
         assert coll._is_multi_tan()
 
-        coll = collection.SimpleFitsCollection([test_path('wcs512.fits.gz'),
-                                                test_path('herschel_spire.fits.gz')])
+        coll = collection.SimpleFitsCollection([mk_test_path('wcs512.fits.gz'),
+                                                mk_test_path('herschel_spire.fits.gz')])
         assert not coll._is_multi_tan()

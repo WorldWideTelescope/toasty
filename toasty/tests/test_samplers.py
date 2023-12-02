@@ -7,7 +7,7 @@ import numpy.testing as nt
 import os.path
 import pytest
 
-from . import test_path
+from . import mk_test_path
 from .. import cli
 from .. import samplers
 
@@ -41,7 +41,7 @@ class TestSamplers(object):
         args = [
             'tile-healpix',
             '--outdir', self.work_path('basic_cli'),
-            test_path('earth_healpix_equ.fits'),
+            mk_test_path('earth_healpix_equ.fits'),
             '1',
         ]
         cli.entrypoint(args)
