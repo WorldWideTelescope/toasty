@@ -478,7 +478,7 @@ class WcsSampler(object):
 
         D2R = np.pi / 180
         N_COARSE = 32
-        naxis2, naxis1 = self._image.shape
+        naxis2, naxis1 = self._image.shape[:2]
         coarse_pix = np.empty((N_COARSE, N_COARSE, 2))
         coarse_idx1 = np.linspace(0.5, naxis1 + 0.5, N_COARSE)
         coarse_idx2 = np.linspace(0.5, naxis2 + 0.5, N_COARSE)
