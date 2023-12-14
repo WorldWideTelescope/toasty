@@ -33,6 +33,7 @@ Detailed Usage
       [--hdu-index INDEX[,INDEX,...]]
       [--parallelism COUNT, -j COUNT]
       [--tile-only]
+      [--tiling-method METHOD]
       {FITS [FITS ...]}
 
 The ``FITS`` argument(s) give the path(s) of one or more input FITS files. These
@@ -66,6 +67,17 @@ The ``--parallelism COUNT`` (or ``-j COUNT``) argument specifies the level of
 parallism to use in the tiling and downsampling process. On operating systems
 that support parallel processing, the default is to use all CPUs. To disable
 parallel processing, explicitly specify a factor of 1.
+
+The ``--tiling-method METHOD`` argument indicates the target projection to use
+when tiling the data. The default value, ``auto``, causes Toasty to use a
+heuristic to automatically determine the best method. Other valid values are
+``tan`` (to use a tangential/gnomonic projection, only valid for relatively
+small areas on the sky), ``toast`` (for `TOAST`_, best in WWT for large-area
+images), or ``hips`` (for `HiPS`_).
+
+.. _TOAST: https://docs.worldwidetelescope.org/data-guide/1/spherical-projections/toast-projection/
+
+.. _HiPS: https://www.ivoa.net/documents/HiPS/
 
 The ``--appurl`` option can be used to override the base URL for the preview app
 that will be used. This can be helpful when developing new features in one of
@@ -109,7 +121,7 @@ The basic usage of this mode is
 
 .. code-block:: shell
 
-   toasty view -t HOST FITS1 [FITS2...]
+   toasty view -t HOST [other arguments...] FITS1 [FITS2...]
 
 where ``HOST`` is the hostname of the machine with the image(s), and the
 ``FITSn`` values are the paths of the images on the machine relative to the

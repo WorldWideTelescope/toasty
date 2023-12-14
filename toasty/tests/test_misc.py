@@ -8,7 +8,7 @@ import numpy.testing as nt
 import os.path
 import pytest
 
-from . import test_path
+from . import mk_test_path
 from .. import cli
 
 
@@ -32,7 +32,7 @@ class TestMiscCli(object):
         """
         args = [
             "make-thumbnail",
-            test_path("Equirectangular_projection_SW-tweaked.jpg"),
+            mk_test_path("Equirectangular_projection_SW-tweaked.jpg"),
             self.work_path("basic_cli"),
         ]
         cli.entrypoint(args)
@@ -47,7 +47,7 @@ class TestMiscCli(object):
         ImageLoader.add_arguments(parser)
         settings = parser.parse_args(["--crop=1,2,3,4"])
         img = ImageLoader.create_from_args(settings).load_path(
-            test_path("crop_input.png")
+            mk_test_path("crop_input.png")
         )
         arr = img.asarray()
         assert arr.shape == (256, 256, 3)

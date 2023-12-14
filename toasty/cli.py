@@ -249,11 +249,11 @@ def show_impl(settings):
         print(doi)
     elif settings.show_command == "version":
         # This string constant will be rewritten by Cranko during releases:
-        version = "0.18.1"  # cranko project-version
+        version = "0.19.0"  # cranko project-version
         print(version)
     elif settings.show_command == "version-doi":
         # This string constant will be rewritten by Cranko during releases:
-        doi = "10.5281/zenodo.7058238"
+        doi = "10.5281/zenodo.10383112"
         if not doi.startswith("10."):
             warn("this DOI is a fake value used for development builds")
         print(doi)
@@ -641,9 +641,32 @@ def tile_study_impl(settings):
         elif img.shape[:2] != (wcs_height, wcs_width):
             warn(
                 f"image `{settings.imgpath}` has shape {img.shape}, but "
-                f"WCS reference file `{settings.fits_wcs}` has shape ({wcs_height}, {wcs_width}); "
-                f"astrometry may not transfer correctly"
+                f"WCS reference file `{settings.fits_wcs}` has shape ({wcs_height}, {wcs_width})"
             )
+
+            # Cribbing some code from pyavm ...
+            scale_x = img.shape[1] / wcs_width
+            scale_y = img.shape[0] / wcs_height
+
+            if abs(scale_x - scale_y) / (scale_x + scale_y) >= 0.005:
+                warn(
+                    "the aspect ratios are not compatible; I'll proceed, but astrometry is unlikely transfer correctly"
+                )
+                scale = 1.0
+            else:
+                warn("the aspect ratios are compatible, so I'll try rescaling")
+                scale = scale_x
+
+            wcs.wcs.crpix *= scale
+
+            if hasattr(wcs.wcs, "cd"):
+                wcs.wcs.cd /= scale
+            else:
+                wcs.wcs.cdelt /= scale
+
+            if hasattr(wcs, "naxis1"):
+                wcs.naxis1 = img.shape[1]
+                wcs.naxis2 = img.shape[0]
 
         img._wcs = wcs  # <= hack alert, but I think this is OK
         img.ensure_negative_parity()
@@ -885,6 +908,12 @@ def view_getparser(parser):
         help="Tile the data but do not open for viewing",
     )
     parser.add_argument(
+        "--tiling-method",
+        default="auto",
+        choices=["auto", "tan", "toast", "hips"],
+        help="The target projection when tiling: `auto`, `tan`, `toast`, or `hips`",
+    )
+    parser.add_argument(
         "paths",
         metavar="PATHS",
         action=EnsureGlobsExpandedAction,
@@ -895,15 +924,28 @@ def view_getparser(parser):
 
 def view_locally(settings):
     from wwt_data_formats.server import preview_wtml
+    from . import TilingMethod
     from .collection import CollectionLoader
     from .fits_tiler import FitsTiler
+
+    if settings.tiling_method == "auto":
+        tiling_method = TilingMethod.AUTO_DETECT
+    elif settings.tiling_method == "tan":
+        tiling_method = TilingMethod.TAN
+    elif settings.tiling_method == "toast":
+        tiling_method = TilingMethod.TOAST
+    elif settings.tiling_method == "hips":
+        tiling_method = TilingMethod.HIPS
+    else:
+        # This shouldn't happen since argparse should validate the input
+        die(f"unhandled tiling method `{settings.tiling_method}`")
 
     coll = CollectionLoader.create_from_args(settings).load_paths(settings.paths)
 
     # Ignore any astropy WCS/FITS warnings, which can spew a lot of annoying output.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        tiler = FitsTiler(coll)
+        tiler = FitsTiler(coll, tiling_method=tiling_method)
         tiler.tile(cli_progress=True, parallel=settings.parallelism)
 
     rel_wtml_path = os.path.join(tiler.out_dir, "index_rel.wtml")
@@ -941,7 +983,14 @@ def view_tunneled(settings):
     # We give SSH `-T` to prevent warnings about not allocating pseudo-TTYs.
 
     ssh_argv = ["ssh", "-T", settings.tunnel]
-    toasty_argv = ["exec", "toasty", "view", "--tile-only"]
+    toasty_argv = [
+        "exec",
+        "toasty",
+        "view",
+        "--tile-only",
+        f"--tiling-method={settings.tiling_method}",
+    ]
+
     if settings.parallelism:
         toasty_argv += ["--parallelism", str(settings.parallelism)]
     toasty_argv += [shlex.quote(p) for p in settings.paths]
