@@ -11,7 +11,7 @@ import pytest
 import sys
 from xml.etree import ElementTree as etree
 
-from . import assert_xml_elements_equal, test_path
+from . import assert_xml_elements_equal, mk_test_path
 from ..builder import Builder
 from .. import cli
 from .. import collection
@@ -102,7 +102,7 @@ class TestMultiTan(object):
         return os.path.join(self.work_dir, *pieces)
 
     def test_basic(self):
-        coll = collection.SimpleFitsCollection([test_path("wcs512.fits.gz")])
+        coll = collection.SimpleFitsCollection([mk_test_path("wcs512.fits.gz")])
 
         proc = multi_tan.MultiTanProcessor(coll)
 
@@ -173,7 +173,7 @@ class TestMultiTan(object):
             "0",
             "--outdir",
             self.work_path("basic_cli"),
-            test_path("wcs512.fits.gz"),
+            mk_test_path("wcs512.fits.gz"),
         ]
         cli.entrypoint(args)
 
@@ -208,7 +208,7 @@ class TestMultiTan(object):
             "--placeholder-thumbnail",
             "--outdir",
             self.work_path("study_cli"),
-            test_path("wcs512.fits.gz"),
+            mk_test_path("wcs512.fits.gz"),
         ]
         cli.entrypoint(args)
 
@@ -246,7 +246,7 @@ class TestMultiTan(object):
         pio = pyramid.PyramidIO(outdir, default_format="fits")
         bld = builder.Builder(pio)
         coll = collection.SimpleFitsCollection(
-            [test_path("wcs512.fits.gz")], hdu_index=0
+            [mk_test_path("wcs512.fits.gz")], hdu_index=0
         )
         proc = multi_wcs.MultiWcsProcessor(coll)
         proc.compute_global_pixelization(bld)

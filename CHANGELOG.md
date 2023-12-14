@@ -1,11 +1,31 @@
-# rc: micro bump
+# rc: minor bump
+
+- Implement a `--tiling-method` argument for `toasty view` (#97, @pkgw). This
+  allows you to force the choice of a specific method. In particular, sometimes
+  it is helpful to force the use of TOAST to get the most accurate display over
+  large angular sizes.
+- Fix an outdated usage that broke processing of all-sky plate carrée ecliptic
+  images with Astropy 6.x (#99, @pkgw)
+- Fix TOASTing of multi-plane (e.g, RGB) images that don't cover the whole sky
+  (#99, @pkgw). This fixes processing of RGB images that have lots of pixels but
+  don't necessarily cover huge solid angles.
+- In `toasty tile-study`, if we're getting WCS information from a FITS file but
+  its dimensions disagree with the input image, try rescaling the pixel size if
+  the overall image shape is the same (#99, @pkgw). This reproduces behavior
+  already implemented for AVM processing, and helps if, say, you want to process
+  a large image where you've submitted a scaled-down version of it to
+  Astrometry.Net.
+- Various fixes to the test suite and CI system.
+
+
+# toasty 0.18.1 (2022-09-07)
 
 - Fix tiling on macOS+Py3.7 due to an unexpectedly unimplemented API (#94,
   @pkgw).
 
-The DOI of this release is [xx.xxxx/dev-build.toasty.version][xdoi].
+The DOI of this release is [10.5281/zenodo.7058238][xdoi].
 
-[xdoi]: https://doi.org/xx.xxxx/dev-build.toasty.version
+[xdoi]: https://doi.org/10.5281/zenodo.7058238
 
 
 # toasty 0.18.0 (2022-09-06)

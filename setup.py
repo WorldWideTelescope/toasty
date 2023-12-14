@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright 2013-2022 Chris Beaumont and the AAS WorldWide Telescope team
+# Copyright 2013-2023 Chris Beaumont and the WorldWide Telescope team
 # Licensed under the MIT License
 
 from Cython.Distutils import build_ext  # in pyproject.toml
@@ -37,14 +37,14 @@ project homepage].
 setup_args = dict(
     name="toasty",  # cranko project-name
     version="0.dev0",  # cranko project-version
-    description="Generate TOAST image tile pyramids from existing image data",
+    description="Generate image tile pyramids from existing image data",
     long_description=get_long_desc(),
     long_description_content_type="text/markdown",
     url="https://toasty.readthedocs.io/",
     license="MIT",
     platforms="Linux, Mac OS X",
-    author="Chris Beaumont, AAS WorldWide Telescope Team",
-    author_email="wwt@aas.org",
+    author="Chris Beaumont, WorldWide Telescope Team",
+    author_email="hello@worldwidetelescope.org",
     classifiers=[
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",

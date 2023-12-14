@@ -11,7 +11,7 @@ import pytest
 import shutil
 import sys
 
-from . import assert_xml_elements_equal, test_path
+from . import assert_xml_elements_equal, mk_test_path
 from .. import cli
 from .. import pipeline
 from ..pipeline import astropix
@@ -47,26 +47,30 @@ class LocalTestAstroPixImageSource(astropix.AstroPixImageSource):
             "image_width": "7416",
             "image_height": "4320",
             "image_max_boundry": "7416",
-            "astropix_id": 21642
+            "astropix_id": 21642,
         }
         yield astropix.AstroPixCandidateInput(item)
 
     def fetch_candidate(self, unique_id, cand_data_stream, cachedir):
-        shutil.copy(test_path('NGC253ALMA.jpg'), os.path.join(cachedir, 'image.jpg'))
+        shutil.copy(mk_test_path("NGC253ALMA.jpg"), os.path.join(cachedir, "image.jpg"))
 
 
 class TestPipeline(object):
     def setup_method(self, method):
         from tempfile import mkdtemp
+
         self.work_dir = mkdtemp()
 
-        pipeline.IMAGE_SOURCE_CLASS_LOADERS['_local_test_astropix'] = lambda: LocalTestAstroPixImageSource
+        pipeline.IMAGE_SOURCE_CLASS_LOADERS[
+            "_local_test_astropix"
+        ] = lambda: LocalTestAstroPixImageSource
 
-        os.makedirs(self.work_path('repo'))
-        shutil.copy(test_path('toasty-pipeline-config.yaml'), self.work_path('repo'))
+        os.makedirs(self.work_path("repo"))
+        shutil.copy(mk_test_path("toasty-pipeline-config.yaml"), self.work_path("repo"))
 
     def teardown_method(self, method):
         from shutil import rmtree
+
         rmtree(self.work_dir)
 
     def work_path(self, *pieces):
@@ -74,72 +78,93 @@ class TestPipeline(object):
 
     def test_workflow(self):
         args = [
-            'pipeline', 'init',
-            '--local', self.work_path('repo'),
-            self.work_path('work'),
+            "pipeline",
+            "init",
+            "--local",
+            self.work_path("repo"),
+            self.work_path("work"),
         ]
         cli.entrypoint(args)
 
         args = [
-            'pipeline', 'refresh',
-            '--workdir', self.work_path('work'),
+            "pipeline",
+            "refresh",
+            "--workdir",
+            self.work_path("work"),
         ]
         cli.entrypoint(args)
 
         args = [
-            'pipeline', 'fetch',
-            '--workdir', self.work_path('work'),
-            'fake_test1', '*nomatchisok*',
+            "pipeline",
+            "fetch",
+            "--workdir",
+            self.work_path("work"),
+            "fake_test1",
+            "*nomatchisok*",
         ]
         cli.entrypoint(args)
 
         args = [
-            'pipeline', 'process-todos',
-            '--workdir', self.work_path('work'),
+            "pipeline",
+            "process-todos",
+            "--workdir",
+            self.work_path("work"),
         ]
         cli.entrypoint(args)
 
         args = [
-            'pipeline', 'approve',
-            '--workdir', self.work_path('work'),
-            'fake_test1', 'fake_test?',
+            "pipeline",
+            "approve",
+            "--workdir",
+            self.work_path("work"),
+            "fake_test1",
+            "fake_test?",
         ]
         cli.entrypoint(args)
 
         args = [
-            'pipeline', 'publish',
-            '--workdir', self.work_path('work'),
+            "pipeline",
+            "publish",
+            "--workdir",
+            self.work_path("work"),
         ]
         cli.entrypoint(args)
 
         args = [
-            'pipeline', 'ignore-rejects',
-            '--workdir', self.work_path('work'),
+            "pipeline",
+            "ignore-rejects",
+            "--workdir",
+            self.work_path("work"),
         ]
         cli.entrypoint(args)
 
     def test_args(self):
         with pytest.raises(SystemExit):
             args = [
-                'pipeline', 'init',
-                self.work_path('work'),
+                "pipeline",
+                "init",
+                self.work_path("work"),
             ]
             cli.entrypoint(args)
 
         with pytest.raises(SystemExit):
             args = [
-                'pipeline', 'init',
-                '--azure-conn-env', 'NOTAVARIABLE',
-                self.work_path('work'),
+                "pipeline",
+                "init",
+                "--azure-conn-env",
+                "NOTAVARIABLE",
+                self.work_path("work"),
             ]
             cli.entrypoint(args)
 
-        os.environ['FAKECONNSTRING'] = 'fake'
+        os.environ["FAKECONNSTRING"] = "fake"
 
         with pytest.raises(SystemExit):
             args = [
-                'pipeline', 'init',
-                '--azure-conn-env', 'FAKECONNSTRING',
-                self.work_path('work'),
+                "pipeline",
+                "init",
+                "--azure-conn-env",
+                "FAKECONNSTRING",
+                self.work_path("work"),
             ]
             cli.entrypoint(args)

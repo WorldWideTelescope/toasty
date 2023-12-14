@@ -6,7 +6,7 @@ import numpy as np
 import numpy.testing as nt
 import os.path
 
-from . import test_path
+from . import mk_test_path
 from .. import cli
 from .. import merge
 
@@ -45,7 +45,7 @@ class TestCascade(object):
             args += [
                 "--outdir",
                 self.work_path("basic_cli"),
-                test_path("Equirectangular_projection_SW-tweaked.jpg"),
+                mk_test_path("Equirectangular_projection_SW-tweaked.jpg"),
                 "1",
             ]
             cli.entrypoint(args)

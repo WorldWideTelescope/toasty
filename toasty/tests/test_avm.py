@@ -5,7 +5,7 @@
 import os.path
 import pytest
 
-from . import HAS_AVM, test_path
+from . import HAS_AVM, mk_test_path
 from .. import cli
 
 
@@ -29,7 +29,7 @@ class TestAvm(object):
             "check-avm",
             "--print",
             "--exitcode",
-            test_path("badavm-type.png"),
+            mk_test_path("badavm-type.png"),
         ]
 
         try:
@@ -44,7 +44,7 @@ class TestAvm(object):
         args = [
             "check-avm",
             "--print",
-            test_path("geminiann11015a.jpg"),
+            mk_test_path("geminiann11015a.jpg"),
         ]
 
         try:

@@ -9,7 +9,7 @@ import os.path
 import pytest
 import sys
 
-from . import HAS_AVM, assert_xml_elements_equal, test_path
+from . import HAS_AVM, assert_xml_elements_equal, mk_test_path
 from .. import cli
 from .. import study
 
@@ -113,7 +113,7 @@ class TestStudy(object):
         for variants in ([], ["--placeholder-thumbnail"]):
             args = ["tile-study"]
             args += variants
-            args += ["--outdir", self.work_path(), test_path("NGC253ALMA.jpg")]
+            args += ["--outdir", self.work_path(), mk_test_path("NGC253ALMA.jpg")]
             cli.entrypoint(args)
 
         with open(self.work_path("index_rel.wtml"), "rt", encoding="utf8") as f:
@@ -197,7 +197,7 @@ class TestStudy(object):
                 "--avm",
                 "--outdir",
                 self.work_path(),
-                test_path("geminiann11015a.jpg"),
+                mk_test_path("geminiann11015a.jpg"),
             ]
         )
 
@@ -208,10 +208,10 @@ class TestStudy(object):
             [
                 "tile-study",
                 "--avm-from",
-                test_path("geminiann11015a.jpg"),
+                mk_test_path("geminiann11015a.jpg"),
                 "--outdir",
                 self.work_path(),
-                test_path("geminiann11015a.jpg"),
+                mk_test_path("geminiann11015a.jpg"),
             ]
         )
 
@@ -279,10 +279,10 @@ class TestStudy(object):
             [
                 "tile-study",
                 "--fits-wcs",
-                test_path("geminiann11015a_wcs.fits"),
+                mk_test_path("geminiann11015a_wcs.fits"),
                 "--outdir",
                 self.work_path(),
-                test_path("geminiann11015a.jpg"),
+                mk_test_path("geminiann11015a.jpg"),
             ]
         )
 
