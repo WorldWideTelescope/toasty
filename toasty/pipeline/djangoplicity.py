@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright 2020 the AAS WorldWide Telescope project
+# Copyright the WorldWide Telescope project
 # Licensed under the MIT License.
 
 """
@@ -11,21 +11,51 @@ DjangoplicityImageSource
 DjangoplicityCandidateInput
 """.split()
 
+import ast
 import codecs
 from contextlib import contextmanager
 from datetime import datetime, timezone
-import functools
 import html
 import json
 import numpy as np
 import os.path
 import requests
 import shutil
-from urllib.parse import urljoin, quote as urlquote
+from urllib.parse import quote as urlquote
 import yaml
 
 from ..image import ImageLoader
 from . import CandidateInput, ImageSource, NotActionableError
+
+
+def fix_djangoplicity_json(obj):
+    """
+    Some versions/installations of Djangoplicity have a bug where textual data
+    come through in the API JSON content as the repr of a Python `bytes`, rather
+    than actual Unicode text. E.g. for heic2405a, we currently get:
+
+    { ... "Title": "b'Brown dwarf (artist\\xe2\\x80\\x99s concept)'" ... }
+
+    This function cleans that up.
+    """
+
+    if isinstance(obj, str):
+        if not obj.startswith("b'"):
+            return obj
+
+        # We (almost definitely) have a byte-string repr
+        try:
+            return ast.literal_eval(obj).decode("utf-8")
+        except:
+            return obj  # least-bad way to handle this, I think
+
+    if isinstance(obj, list):
+        return [fix_djangoplicity_json(x) for x in obj]
+
+    if isinstance(obj, dict):
+        return dict((k, fix_djangoplicity_json(v)) for k, v in obj.items())
+
+    return obj
 
 
 class DjangoplicityImageSource(ImageSource):
@@ -133,6 +163,9 @@ class DjangoplicityImageSource(ImageSource):
 
         with self.make_request(url) as resp:
             info = json.loads(resp.content)
+
+        # Clean up the Python bytes reprs, potentially
+        info = fix_djangoplicity_json(info)
 
         # Find the "fullsize original" image URL
 
