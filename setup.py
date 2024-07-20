@@ -94,7 +94,11 @@ setup_args = dict(
         "build_ext": build_ext,
     },
     ext_modules=[
-        Extension("toasty._libtoasty", ["toasty/_libtoasty.pyx"]),
+        Extension(
+            "toasty._libtoasty",
+            ["toasty/_libtoasty.pyx"],
+            define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+        ),
     ],
     include_dirs=[
         np.get_include(),

@@ -1,9 +1,11 @@
 from libc.math cimport sin, cos, atan2, hypot
-import numpy as np
 
 cimport cython
 
 cimport numpy as np
+import numpy as np
+
+np.import_array()
 
 DTYPE = np.float64
 ctypedef np.float64_t DTYPE_t
