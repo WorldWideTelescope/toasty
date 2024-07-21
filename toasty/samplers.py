@@ -152,7 +152,8 @@ def healpix_fits_file_sampler(
         # needed.
         data = data[data.dtype.names[0]]
         if data.dtype.byteorder not in "=|":
-            data = data.byteswap().newbyteorder()
+            data = data.byteswap()
+            data = data.view(data.dtype.newbyteorder())
 
         nest = hdr.get("ORDERING") == "NESTED"
         coord = hdr.get("COORDSYS", "C")

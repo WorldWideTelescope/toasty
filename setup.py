@@ -36,7 +36,7 @@ project homepage].
 
 setup_args = dict(
     name="toasty",  # cranko project-name
-    version="0.19.0",  # cranko project-version
+    version="0.19.1",  # cranko project-version
     description="Generate image tile pyramids from existing image data",
     long_description=get_long_desc(),
     long_description_content_type="text/markdown",
@@ -94,7 +94,11 @@ setup_args = dict(
         "build_ext": build_ext,
     },
     ext_modules=[
-        Extension("toasty._libtoasty", ["toasty/_libtoasty.pyx"]),
+        Extension(
+            "toasty._libtoasty",
+            ["toasty/_libtoasty.pyx"],
+            define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+        ),
     ],
     include_dirs=[
         np.get_include(),

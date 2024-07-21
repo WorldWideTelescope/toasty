@@ -1,3 +1,14 @@
+# toasty 0.19.1 (2024-07-21)
+
+- Update for Numpy 2.0 compatibility (#102, @pkgw). Previous releases will
+  work in most cases, but are not 100% compatible.
+- If guessing parallelism in a Slurm HPC execution environment, try to respect
+  the job's resource allocation (#101, @pkgw). Often, on an HPC cluster the
+  number of CPU cores on the host machine will be a bad indicator of the
+  parallelism level that you should target, because you may only be allocated a
+  small fraction of them.
+
+
 # toasty 0.19.0 (2023-12-14)
 
 - Implement a `--tiling-method` argument for `toasty view` (#97, @pkgw). This
