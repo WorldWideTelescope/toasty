@@ -1,14 +1,6 @@
 [build-system]
-requires = [
-  'cython',
-  'oldest-supported-numpy',
-  'setuptools',
-  'wheel',
-]
+requires = ['cython', 'numpy', 'setuptools', 'wheel']
 build-backend = 'setuptools.build_meta'
 
 [tool.cranko]
-annotated_files = [
-  "docs/conf.py",
-  "toasty/cli.py",
-]
+annotated_files = ["docs/conf.py", "toasty/cli.py"]
