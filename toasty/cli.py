@@ -892,6 +892,11 @@ def view_getparser(parser):
         help="Use SSH tunneling to view an image stored on a remote host",
     )
     parser.add_argument(
+        "--tunnel-initcmd",
+        metavar="COMMAND",
+        help="Execute this line of shell script before tunneling processing",
+    )
+    parser.add_argument(
         "--browser",
         "-b",
         metavar="BROWSER-TYPE",
@@ -1007,6 +1012,9 @@ def view_tunneled(settings):
         text=True,
     )
 
+    if settings.tunnel_initcmd:
+        print(settings.tunnel_initcmd, file=proc.stdin)
+
     print(" ".join(toasty_argv), file=proc.stdin)
     proc.stdin.close()
 
@@ -1041,6 +1049,9 @@ def view_tunneled(settings):
         "--heartbeat",
         shlex.quote(os.path.dirname(index_rel_path)),
     ]
+
+    if settings.tunnel_initcmd:
+        serve_argv = [settings.tunnel_initcmd, ";"] + serve_argv
 
     print(f"\nLaunching data server on `{settings.tunnel}` ...\n")
     serve_proc = None
