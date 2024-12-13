@@ -477,6 +477,12 @@ def tile_multi_tan_getparser(parser):
         help="Which HDU to load in each input FITS file",
     )
     parser.add_argument(
+        "--wcs-key",
+        metavar="LETTER",
+        default=" ",
+        help="Which group of WCS headers to process in the input HDU(s)",
+    )
+    parser.add_argument(
         "--outdir",
         metavar="PATH",
         default=".",
@@ -500,7 +506,7 @@ def tile_multi_tan_impl(settings):
     pio = PyramidIO(settings.outdir, default_format="fits")
     builder = Builder(pio)
 
-    collection = SimpleFitsCollection(settings.paths, hdu_index=settings.hdu_index)
+    collection = SimpleFitsCollection(settings.paths, hdu_index=settings.hdu_index, wcs_key=settings.wcs_key)
 
     mtp = MultiTanProcessor(collection)
     mtp.compute_global_pixelization(builder)

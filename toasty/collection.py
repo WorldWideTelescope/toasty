@@ -47,6 +47,7 @@ MATCH_HEADERS = [
     "PC2_2",
 ]
 
+ALLOWED_WCS_KEYS = " ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 class ImageCollection(ABC):
     def descriptions(self):
@@ -132,9 +133,10 @@ class ImageCollection(ABC):
 
 
 class SimpleFitsCollection(ImageCollection):
-    def __init__(self, paths, hdu_index=None, blankval=None, **kwargs):
+    def __init__(self, paths, hdu_index=None, wcs_key=" ", blankval=None, **kwargs):
         self._paths = list(paths)
         self._hdu_index = hdu_index
+        self._wcs_key = wcs_key
         self._blankval = blankval
 
     def _scan_hdus(self):
@@ -162,7 +164,14 @@ class SimpleFitsCollection(ImageCollection):
                         f"cannot process input `{fits_path}`: Did not find any HDU with image data"
                     )
 
-                yield fits_path, hdu_index, hdu
+                if isinstance(self._wcs_key, str):
+                    wcs_key = self._wcs_key
+                elif self._wcs_key is not None:
+                    wcs_key = self._wcs_key[path_index]
+                else:
+                    wcs_key = " "
+
+                yield fits_path, hdu_index, hdu, wcs_key
 
     def export_simple(self):
         # We're allowed to return a generator, but we listify this so that the
@@ -172,7 +181,7 @@ class SimpleFitsCollection(ImageCollection):
     def _load(self, actually_load_data):
         from astropy.wcs import WCS
 
-        for fits_path, _hdu_index, hdu in self._scan_hdus():
+        for fits_path, _hdu_index, hdu, wcs_key in self._scan_hdus():
             # Hack for DASCH files, and potentially others. These have TPV
             # polynomial distortions but do not use the magic projection
             # keyword that causes Astropy to accept them. We don't try to be
@@ -181,11 +190,11 @@ class SimpleFitsCollection(ImageCollection):
 
             if (
                 "PV1_5" in hdu.header
-                and hdu.header["CTYPE1"] == "RA---TAN"
-                and hdu.header["CTYPE2"] == "DEC--TAN"
+                and hdu.header["CTYPE1" + wcs_key] == "RA---TAN"
+                and hdu.header["CTYPE2" + wcs_key] == "DEC--TAN"
             ):
-                hdu.header["CTYPE1"] = "RA---TPV"
-                hdu.header["CTYPE2"] = "DEC--TPV"
+                hdu.header["CTYPE1" + wcs_key] = "RA---TPV"
+                hdu.header["CTYPE2" + wcs_key] = "DEC--TPV"
 
                 # Extra hack (?) for `rh04475_00_01ww_tnx.fit` needed to fix 180
                 # deg rotation. Based on the last paragraph of \S2.2 in
@@ -195,12 +204,13 @@ class SimpleFitsCollection(ImageCollection):
                 # which is the WCS kit used for this project. I'm not currently
                 # able to get my hands on other DASCH files to test out other
                 # cases where this fix may be needed.
-                if hdu.header["CRVAL2"] == 90:
-                    hdu.header["LONPOLE"] = 180.0
+                if hdu.header["CRVAL2" + wcs_key] == 90:
+                    hdu.header["LONPOLE" + wcs_key] = 180.0
 
             # End hack(s).
 
-            wcs = WCS(hdu.header)
+            wcs = WCS(hdu.header, key=wcs_key)
+            wcs.wcs.alt = " " # force wcs to forget about the key; we don't want to preserve it
             shape = hdu.shape
 
             if wcs.naxis >= len(shape):
@@ -373,6 +383,7 @@ class CollectionLoader(object):
 
     blankval = None
     hdu_index = None
+    wcs_key = None
 
     @classmethod
     def add_arguments(cls, parser):
@@ -399,6 +410,11 @@ class CollectionLoader(object):
             "--hdu-index",
             metavar="INDEX[,INDEX...]",
             help="Which HDU to load in each input FITS file",
+        )
+        parser.add_argument(
+            "--wcs-key",
+            metavar="LETTER[,LETTER...]",
+            help="Which group of WCS headers to process in each input HDU",
         )
         parser.add_argument(
             "--blankval",
@@ -442,6 +458,22 @@ class CollectionLoader(object):
 
             loader.hdu_index = index
 
+        if settings.wcs_key is not None:
+            # Same semantic issue as above.
+            keys = settings.wcs_key.split(",")
+
+            for key in keys:
+                if len(key) != 1 or key not in ALLOWED_WCS_KEYS:
+                    raise Exception(
+                        "cannot parse `--wcs-key` setting `{settings.wcs_key!r}`: should "
+                        "be a comma-separated list of single characters, each on A-Z or space"
+                    )
+
+            if len(keys) == 1:
+                loader.wcs_key = keys[0]
+            else:
+                loader.wcs_key = keys
+
         if settings.blankval is not None:
             try:
                 # If integer input image, want to avoid roundoff/precision issues
@@ -479,11 +511,12 @@ class CollectionLoader(object):
         return SimpleFitsCollection(
             paths,
             hdu_index=self.hdu_index,
+            wcs_key=self.wcs_key,
             blankval=self.blankval,
         )
 
 
-def load(input, hdu_index=None, blankval=None):
+def load(input, hdu_index=None, wcs_key=" ", blankval=None):
     """
     Set up a collection of FITS files as sensibly as possible.
 
@@ -496,6 +529,12 @@ def load(input, hdu_index=None, blankval=None):
         used in every input file; if a list, corresponding values
         will be used for each input path. If unspecified, Toasty
         will guess.
+    wcs_key : optional str or list of str, default " "
+        Which set of WCS headers to load from each HDU. For typical
+        HDUs containing only one WCS solution, a value of " " is
+        appropriate. Additional solutions use keys "A", "B", ... "Z".
+        If a scalar, the same index will be used in every input file;
+        if a list, corresponding values will be used for each input path.
     blankval : optional number, default None
         An image value to treat as undefined in all FITS inputs.
 
@@ -518,5 +557,6 @@ def load(input, hdu_index=None, blankval=None):
     input = list(input)
     loader = CollectionLoader()
     loader.hdu_index = hdu_index
+    loader.wcs_key = wcs_key
     loader.blankval = blankval
     return loader.load_paths(input)
