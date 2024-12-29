@@ -1,4 +1,24 @@
-# rc: micro bump
+# rc: minor bump
+
+- Add multi-WCS support to the core FITS loading support (#103, @pkgw). This
+  allows you to choose which set of WCS information to load from a FITS HDU when
+  it has multiple ones using different lettered "keys". DASCH mosaics use these
+  to capture astrometric solutions for multiple-exposure plates.
+- In the pipeline, fix incoming JSON from some installations of Djangoplicity
+  (#104, @pkgw). These clearly have some Python 3 issue where strings come
+  through as encoded Python bytes, `b"..."`. These results are coming directly
+  from the servers, so we have to patch them up ourselves.
+- Add `--tunnel-initcmd` option to `toasty view` (#104, @pkgw). If you are using
+  the `toasty view` remote-tunnel functionality, you may need to run some
+  commands on the remote host to set up the shell environment to make the remote
+  `toasty` command available. This option allows you to do that.
+
+The DOI of this release is [xx.xxxx/dev-build.toasty.version][xdoi].
+
+[xdoi]: xx.xxxx/dev-build.toasty.version
+
+
+# toasty 0.19.1 (2024-07-21)
 
 - Update for Numpy 2.0 compatibility (#102, @pkgw). Previous releases will
   work in most cases, but are not 100% compatible.
