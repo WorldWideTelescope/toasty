@@ -249,11 +249,11 @@ def show_impl(settings):
         print(doi)
     elif settings.show_command == "version":
         # This string constant will be rewritten by Cranko during releases:
-        version = "0.19.1"  # cranko project-version
+        version = "0.20.0"  # cranko project-version
         print(version)
     elif settings.show_command == "version-doi":
         # This string constant will be rewritten by Cranko during releases:
-        doi = "10.5281/zenodo.12790601"
+        doi = "10.5281/zenodo.14570962"
         if not doi.startswith("10."):
             warn("this DOI is a fake value used for development builds")
         print(doi)
@@ -477,6 +477,12 @@ def tile_multi_tan_getparser(parser):
         help="Which HDU to load in each input FITS file",
     )
     parser.add_argument(
+        "--wcs-key",
+        metavar="LETTER",
+        default=" ",
+        help="Which group of WCS headers to process in the input HDU(s)",
+    )
+    parser.add_argument(
         "--outdir",
         metavar="PATH",
         default=".",
@@ -500,7 +506,7 @@ def tile_multi_tan_impl(settings):
     pio = PyramidIO(settings.outdir, default_format="fits")
     builder = Builder(pio)
 
-    collection = SimpleFitsCollection(settings.paths, hdu_index=settings.hdu_index)
+    collection = SimpleFitsCollection(settings.paths, hdu_index=settings.hdu_index, wcs_key=settings.wcs_key)
 
     mtp = MultiTanProcessor(collection)
     mtp.compute_global_pixelization(builder)
@@ -892,6 +898,11 @@ def view_getparser(parser):
         help="Use SSH tunneling to view an image stored on a remote host",
     )
     parser.add_argument(
+        "--tunnel-initcmd",
+        metavar="COMMAND",
+        help="Execute this line of shell script before tunneling processing",
+    )
+    parser.add_argument(
         "--browser",
         "-b",
         metavar="BROWSER-TYPE",
@@ -1007,6 +1018,9 @@ def view_tunneled(settings):
         text=True,
     )
 
+    if settings.tunnel_initcmd:
+        print(settings.tunnel_initcmd, file=proc.stdin)
+
     print(" ".join(toasty_argv), file=proc.stdin)
     proc.stdin.close()
 
@@ -1041,6 +1055,9 @@ def view_tunneled(settings):
         "--heartbeat",
         shlex.quote(os.path.dirname(index_rel_path)),
     ]
+
+    if settings.tunnel_initcmd:
+        serve_argv = [settings.tunnel_initcmd, ";"] + serve_argv
 
     print(f"\nLaunching data server on `{settings.tunnel}` ...\n")
     serve_proc = None

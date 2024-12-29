@@ -12,8 +12,8 @@ FitsTiler
 
       ~FitsTiler.builder
       ~FitsTiler.coll
-      ~FitsTiler.tiling_method
       ~FitsTiler.out_dir
+      ~FitsTiler.tiling_method
 
    .. rubric:: Methods Summary
 
@@ -25,8 +25,8 @@ FitsTiler
 
    .. autoattribute:: builder
    .. autoattribute:: coll
-   .. autoattribute:: tiling_method
    .. autoattribute:: out_dir
+   .. autoattribute:: tiling_method
 
    .. rubric:: Methods Documentation
 

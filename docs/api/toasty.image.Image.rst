@@ -10,6 +10,8 @@ Image
 
    .. autosummary::
 
+      ~Image.data_max
+      ~Image.data_min
       ~Image.default_format
       ~Image.dtype
       ~Image.height
@@ -32,12 +34,15 @@ Image
       ~Image.from_pil
       ~Image.get_parity_sign
       ~Image.has_wcs
+      ~Image.is_completely_masked
       ~Image.make_thumbnail_bitmap
       ~Image.save
       ~Image.update_into_maskable_buffer
 
    .. rubric:: Attributes Documentation
 
+   .. autoattribute:: data_max
+   .. autoattribute:: data_min
    .. autoattribute:: default_format
    .. autoattribute:: dtype
    .. autoattribute:: height
@@ -58,6 +63,7 @@ Image
    .. automethod:: from_pil
    .. automethod:: get_parity_sign
    .. automethod:: has_wcs
+   .. automethod:: is_completely_masked
    .. automethod:: make_thumbnail_bitmap
    .. automethod:: save
    .. automethod:: update_into_maskable_buffer

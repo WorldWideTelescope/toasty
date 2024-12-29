@@ -25,6 +25,7 @@ def tile_fits(
     fits,
     out_dir=None,
     hdu_index=None,
+    wcs_key=" ",
     override=False,
     cli_progress=False,
     parallel=None,
@@ -47,6 +48,12 @@ def tile_fits(
         Use this parameter to specify which HDU to tile. If the *fits* input is a list of FITS, you can specify the
         hdu_index of each FITS by using a list of integers like this: [0, 2, 1]. If hdu_index is not set, toasty will
         use the first HDU with tilable content in each FITS.
+    wcs_key : optional str or list of str, default " "
+        Which set of WCS headers to load from each HDU. For typical
+        HDUs containing only one WCS solution, a value of " " is
+        appropriate. Additional solutions use keys "A", "B", ... "Z".
+        If a scalar, the same index will be used in every input file;
+        if a list, corresponding values will be used for each input path.
     override : optional boolean, defaults to False
         If there is already a tiled FITS in *out_dir*, the tiling process is skipped and the content in *out_dir* is
         served. To override the content in *out_dir*, set *override* to True.
@@ -75,7 +82,7 @@ def tile_fits(
     # Importing here to keep toasty namespace clean:
     from toasty import collection, fits_tiler
 
-    coll = collection.load(fits, hdu_index=hdu_index, blankval=blankval)
+    coll = collection.load(fits, hdu_index=hdu_index, wcs_key=wcs_key, blankval=blankval)
     tiler = fits_tiler.FitsTiler(
         coll,
         out_dir=out_dir,
