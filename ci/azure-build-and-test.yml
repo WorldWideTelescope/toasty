@@ -10,30 +10,30 @@ parameters:
     vars:
       PYTHON_SERIES: "3.10"
 
-  - name: linux_39
+  - name: linux_313
     vmImage: ubuntu-latest
     vars:
-      PYTHON_SERIES: "3.9"
+      PYTHON_SERIES: "3.13"
 
   - name: macos_310
     vmImage: macos-latest
     vars:
       PYTHON_SERIES: "3.10"
 
-  - name: macos_39
+  - name: macos_313
     vmImage: macos-latest
     vars:
-      PYTHON_SERIES: "3.9"
+      PYTHON_SERIES: "3.13"
 
   - name: windows_310
     vmImage: windows-2022
     vars:
       PYTHON_SERIES: "3.10"
 
-  - name: windows_39
+  - name: windows_313
     vmImage: windows-2022
     vars:
-      PYTHON_SERIES: "3.9"
+      PYTHON_SERIES: "3.13"
 
 jobs:
 - ${{ each build in parameters.builds }}:
