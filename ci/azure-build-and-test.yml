@@ -6,22 +6,22 @@ parameters:
   default:
 
   - name: linux_310
-    vmImage: ubuntu-20.04
+    vmImage: ubuntu-latest
     vars:
       PYTHON_SERIES: "3.10"
 
   - name: linux_39
-    vmImage: ubuntu-20.04
+    vmImage: ubuntu-latest
     vars:
       PYTHON_SERIES: "3.9"
 
   - name: macos_310
-    vmImage: macos-12
+    vmImage: macos-latest
     vars:
       PYTHON_SERIES: "3.10"
 
   - name: macos_39
-    vmImage: macos-12
+    vmImage: macos-latest
     vars:
       PYTHON_SERIES: "3.9"
 
@@ -74,7 +74,7 @@ jobs:
 
 - job: coverage
   pool:
-    vmImage: ubuntu-20.04
+    vmImage: ubuntu-latest
   steps:
   - template: azure-job-setup.yml
     parameters:
@@ -131,7 +131,7 @@ jobs:
 
 - job: docs
   pool:
-    vmImage: ubuntu-20.04
+    vmImage: ubuntu-latest
   steps:
   - template: azure-job-setup.yml
     parameters:
@@ -141,7 +141,7 @@ jobs:
       set -euo pipefail
       source activate-conda.sh
       set -x
-      \conda create -y -n build setuptools pip python=3.8
+      \conda create -y -n build setuptools pip python=3.12
       conda activate build
       pip install $BASH_WORKSPACE/sdist/*.tar.gz
     displayName: Install from sdist
@@ -151,8 +151,7 @@ jobs:
       source activate-conda.sh
       conda activate build
       set -x
-      \conda install -y astropy numpydoc sphinx sphinx-automodapi
-      pip install astropy-sphinx-theme
+      \conda install -y astropy astropy-sphinx-theme numpydoc sphinx sphinx-automodapi
       cd docs
       make html
 
