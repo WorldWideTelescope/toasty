@@ -141,7 +141,7 @@ jobs:
       set -euo pipefail
       source activate-conda.sh
       set -x
-      \conda create -y -n build setuptools pip python=3.8
+      \conda create -y -n build setuptools pip python=3.12
       conda activate build
       pip install $BASH_WORKSPACE/sdist/*.tar.gz
     displayName: Install from sdist
@@ -151,8 +151,7 @@ jobs:
       source activate-conda.sh
       conda activate build
       set -x
-      \conda install -y astropy numpydoc sphinx sphinx-automodapi
-      pip install astropy-sphinx-theme
+      \conda install -y astropy astropy-sphinx-theme numpydoc sphinx sphinx-automodapi
       cd docs
       make html
 
