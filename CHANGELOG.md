@@ -1,4 +1,14 @@
-# rc: minor bump
+# rc: micro bump
+
+- Fix a deprecated Astropy transform syntax (#105, @johnarban)
+- Add another PIL decompression-bomb workaround when mapping colorspaces (#106, @pkgw)
+
+The DOI of this release is [xx.xxxx/dev-build.toasty.version][vdoi].
+
+[vdoi]: https://doi.org/xx.xxxx/dev-build.toasty.version
+
+
+# toasty 0.20.0 (2024-12-29)
 
 - Add multi-WCS support to the core FITS loading support (#103, @pkgw). This
   allows you to choose which set of WCS information to load from a FITS HDU when
@@ -13,9 +23,9 @@
   commands on the remote host to set up the shell environment to make the remote
   `toasty` command available. This option allows you to do that.
 
-The DOI of this release is [xx.xxxx/dev-build.toasty.version][xdoi].
+The DOI of this release is [10.5281/zenodo.14570962][xdoi].
 
-[xdoi]: xx.xxxx/dev-build.toasty.version
+[xdoi]: https://doi.org/10.5281/zenodo.14570962
 
 
 # toasty 0.19.1 (2024-07-21)

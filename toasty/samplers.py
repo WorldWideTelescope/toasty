@@ -240,7 +240,7 @@ def plate_carree_galactic_sampler(data):
     lat0 = HALFPI - 0.5 / dy  # latitudes of the centers of the pixels with iy = 0
 
     def vec2pix(lon, lat):
-        gal = ICRS(lon * u.rad, lat * u.rad).transform_to(Galactic)
+        gal = ICRS(lon * u.rad, lat * u.rad).transform_to(Galactic())
         lon, lat = gal.l.rad, gal.b.rad
 
         lon = (lon + np.pi) % TWOPI - np.pi  # ensure in range [-pi, pi]
