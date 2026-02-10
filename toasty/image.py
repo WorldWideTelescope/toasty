@@ -587,7 +587,14 @@ class ImageLoader(object):
                 xform = ImageCms.buildTransform(
                     in_prof, out_prof, pil_img.mode, pil_img.mode
                 )
-                ImageCms.applyTransform(pil_img, xform, inPlace=True)
+
+                # Another PIL decompression-bomb workaround.
+                old_max = pil_image.MAX_IMAGE_PIXELS
+                try:
+                    pil_image.MAX_IMAGE_PIXELS = None
+                    ImageCms.applyTransform(pil_img, xform, inPlace=True)
+                finally:
+                    pil_image.MAX_IMAGE_PIXELS = old_max
 
         return Image.from_pil(pil_img)
 

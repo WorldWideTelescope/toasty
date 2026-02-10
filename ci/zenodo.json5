@@ -42,13 +42,13 @@
     ],
     "language": "eng",
     "license": "MIT",
-    "publication_date": "2024-12-29",
-    "title": "toasty 0.20.0",
+    "publication_date": "2026-02-10",
+    "title": "toasty 0.20.1",
     "upload_type": "software",
-    "version": "0.20.0"
+    "version": "0.20.1"
   },
   "conceptdoi": "10.5281/zenodo.7055476",
-  "record_id": "14570962",
-  "doi": "10.5281/zenodo.14570962",
-  "bucket_link": "https://zenodo.org/api/files/f384779a-d101-48d4-bb22-9ac26ccbfda4"
+  "record_id": "18581162",
+  "doi": "10.5281/zenodo.18581162",
+  "bucket_link": "https://zenodo.org/api/files/dc0ce076-e71c-466c-bf2f-9f5a9d478346"
 }

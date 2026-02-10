@@ -1,3 +1,13 @@
+# toasty 0.20.1 (2026-02-10)
+
+- Fix a deprecated Astropy transform syntax (#105, @johnarban)
+- Add another PIL decompression-bomb workaround when mapping colorspaces (#106, @pkgw)
+
+The DOI of this release is [10.5281/zenodo.18581162][vdoi].
+
+[vdoi]: https://doi.org/10.5281/zenodo.18581162
+
+
 # toasty 0.20.0 (2024-12-29)
 
 - Add multi-WCS support to the core FITS loading support (#103, @pkgw). This
@@ -15,7 +25,7 @@
 
 The DOI of this release is [10.5281/zenodo.14570962][xdoi].
 
-[xdoi]: 10.5281/zenodo.14570962
+[xdoi]: https://doi.org/10.5281/zenodo.14570962
 
 
 # toasty 0.19.1 (2024-07-21)
