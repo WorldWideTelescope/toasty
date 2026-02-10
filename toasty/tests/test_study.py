@@ -170,18 +170,10 @@ class TestStudy(object):
     </Place>
 </Folder>"""
 
-    def basic_avm_test_helper(self, args):
+    def _do_one_wtml_test(self, wtml, args):
         from xml.etree import ElementTree as etree
 
-        # Hack for macOS: XML textualization is ever-so-slightly different.
-
-        wtml = self.AVM_WTML
-
-        if sys.platform == "darwin":
-            wtml = wtml.replace('Dec="-42.58752472831171"', 'Dec="-42.587524728311706"')
-
         expected = etree.fromstring(wtml)
-
         cli.entrypoint(args)
 
         with open(self.work_path("index_rel.wtml"), "rt", encoding="utf8") as f:
@@ -189,9 +181,21 @@ class TestStudy(object):
 
         assert_xml_elements_equal(observed, expected)
 
+    def _basic_avm_test_helper(self, wtml, args):
+        # On some platforms, the XML textualization is ever-so-slightly
+        # different, for reasons that aren't obvious and don't feel worth
+        # chasing down.
+
+        try:
+            self._do_one_wtml_test(wtml, args)
+        except Exception:
+            wtml = wtml.replace('Dec="-42.58752472831171"', 'Dec="-42.587524728311706"')
+            self._do_one_wtml_test(wtml, args)
+
     @pytest.mark.skipif("not HAS_AVM")
     def test_avm(self):
-        self.basic_avm_test_helper(
+        self._basic_avm_test_helper(
+            self.AVM_WTML,
             [
                 "tile-study",
                 "--avm",
@@ -204,7 +208,8 @@ class TestStudy(object):
     @pytest.mark.skipif("not HAS_AVM")
     def test_avm_from(self):
         # Dumb smoke test here
-        self.basic_avm_test_helper(
+        self._basic_avm_test_helper(
+            self.AVM_WTML,
             [
                 "tile-study",
                 "--avm-from",
@@ -264,19 +269,10 @@ class TestStudy(object):
 </Folder>"""
 
     def test_fits_wcs(self):
-        from xml.etree import ElementTree as etree
-
-        # Platform hack: XML textualization is ever-so-slightly different.
-
-        wtml = self.FITS_WCS_WTML
-
-        if sys.platform in ("darwin", "win32"):
-            wtml = wtml.replace('Dec="-42.58752472831171"', 'Dec="-42.587524728311706"')
-
-        expected = etree.fromstring(wtml)
-
-        cli.entrypoint(
+        self._basic_avm_test_helper(
+            self.FITS_WCS_WTML,
             [
+
                 "tile-study",
                 "--fits-wcs",
                 mk_test_path("geminiann11015a_wcs.fits"),
@@ -285,8 +281,3 @@ class TestStudy(object):
                 mk_test_path("geminiann11015a.jpg"),
             ]
         )
-
-        with open(self.work_path("index_rel.wtml"), "rt", encoding="utf8") as f:
-            observed = etree.fromstring(f.read())
-
-        assert_xml_elements_equal(observed, expected)
